@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from marshmallow import ValidationError
 from flask_cors import CORS
 from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.orm import joinedload 
 
 app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'christoaj466' 
@@ -16,12 +16,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:christo466@localh
 # engine = create_engine('postgresql://postgres:christo466@localhost:5432/flaskdb', echo=True) 
 # Session = sessionmaker(bind=engine)
 
-
 CORS(app)
 db.init_app(app)
 @app.route("/")
 def home():
     return "Hello, world"
+
 #to login
 @app.route('/login', methods=['POST'])
 def login():
@@ -38,22 +38,52 @@ def login():
         return jsonify({'message': 'Invalid username or password'}), 401
 
   
-    # session['user_id'] = credential.id
-    # session['username'] = credential.username
+    session['user_id'] = credential.id
+    session['username'] = credential.username
+    
+    user_id = session.get('user_id')
+    username = session.get('username')
 
-    return jsonify({'message': 'Login successful', 'username': credential.username}), 200
+    return jsonify({'message': 'Login successful', 'username': credential.username,'message': 'User is logged in', 'user_id': user_id, 'username': username}), 200
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    session.pop('username', None)
+    return jsonify({'message': 'Logged out successfully'}), 200
 
 #to create designation
+# @app.route('/designation', methods=['POST'])
+# def designation():
+#     data = request.json
+#     console.log(data)
+#     new_designation = Designation(
+#         name=data['name'],
+#         leaves=data.get('leaves', None) 
+#     )
+#     db.session.add(new_designation)
+#     db.session.commit()
+#     return jsonify({'message': 'Designation created successfully', 'id': new_designation.id}), 201
+
 @app.route('/designation', methods=['POST'])
-def designation():
-    data = request.json
-    new_designation = Designation(
-        name=data['name'],
-        leaves=data.get('leaves', None) 
-    )
+def add_designation():
+    data = request.get_json()
+    name = data['name']
+    leaves = data['leaves']
+    
+    if not name or not leaves:
+        return jsonify({"message": "name and leaves are required"}), 400
+
+    new_designation = Designation(name=name, leaves=leaves)
+
     db.session.add(new_designation)
     db.session.commit()
-    return jsonify({'message': 'Designation created successfully', 'id': new_designation.id}), 201
+    return jsonify({'message': 'Designation added successfully'}), 201
+    
+
+
+
 
 @app.route("/designations")
 def designations():
@@ -146,21 +176,21 @@ def employee():
     return jsonify({'message': 'Employee created successfully', 'id': new_employee.id}), 201
 
 #to get employee
-@app.route('/employees/<int:id>', methods=['GET'])
-def get_employee(id):
-    employee = db.session.query(Employee).filter_by(id=id).first()
-    return jsonify({
-        'id': employee.id,
-        'firstname': employee.first_name,
-        "lastname":employee.last_name,
-        'Address': employee.Address,
-        'phone': employee.phone,
-        'email': employee.email,
-        'designation_id': employee.designation_id,
-        'created_at': employee.created_at,
-        'updated_at': employee.updated_at,
-        'deleted_at': employee.deleted_at
-    })
+# @app.route('/employees/<int:id>', methods=['GET'])
+# def get_employee(id):
+#     employee = db.session.query(Employee).filter_by(id=id).first()
+#     return jsonify({
+#         'id': employee.id,
+#         'firstname': employee.first_name,
+#         "lastname":employee.last_name,
+#         'Address': employee.Address,
+#         'phone': employee.phone,
+#         'email': employee.email,
+#         'designation_id': employee.designation_id,
+#         'created_at': employee.created_at,
+#         'updated_at': employee.updated_at,
+#         'deleted_at': employee.deleted_at
+#     })
 
 #to get employee
 @app.route("/employees", methods=['GET'])
@@ -244,14 +274,66 @@ def getemployee(id):
 def update_employee(id):
     employee = db.session.query(Employee).filter_by(id=id).first()
     data = request.json
-    employee.first_name = data.get('firstname', employee.first_name)
-    employee.last_name = data.get('lastname',employee.last_name)
+    employee.first_name = data.get('first_name', employee.first_name)
+    employee.last_name = data.get('last_name',employee.last_name)
     employee.Address = data.get('address', employee.Address)
     employee.phone = data.get('phone', employee.phone)
     employee.email = data.get('email', employee.email)
     employee.designation_id = data.get('designation_id', employee.designation_id)
+    
     db.session.commit()
     return jsonify({'message': 'Employee updated successfully'}), 200
+
+
+# @app.route('/employees/<int:id>/leaves', methods=['PUT'])
+# def update_employee_leaves(id):
+#     employee = db.session.query(Leave).filter_by(employee_id=id).first()
+#     print(employee,"employee")
+#     if not employee:
+#         return jsonify({'message': 'Employee not found'}), 404
+    
+#     data = request.json
+#     print(data.get('leave_taken'))
+#     employee.leave_taken = data.get('leave_taken', employee.leave_taken)
+#     print("leaves",employee.leave_taken)
+#     db.session.commit()
+#     return jsonify({'message': 'Leaves taken updated successfully'}), 200
+
+@app.route('/employees/<int:id>/leaves', methods=['PUT'])
+def update_employee_leaves(id):
+    leaves = db.session.query(Leave).filter_by(employee_id=id).first()
+    employee = db.session.query(Employee).options(joinedload(Employee.designation)).filter_by(id=id).first()
+
+    print(leaves,"leaves")
+    print(employee,"employees")
+    if not leaves:
+        return jsonify({'message': 'Employee not found'}), 404
+    
+    data = request.json
+    new_leaves_taken = int(data.get('leave_taken', leaves.leave_taken))
+    print(new_leaves_taken,"new_leaves")
+
+    # Fetch the designation to get the maximum allowed leaves
+  
+    designation = employee.designation
+    max_allowed_leaves = designation.leaves
+    print(max_allowed_leaves,"max_leaves")
+
+    if new_leaves_taken > max_allowed_leaves:
+        return jsonify({'error': 'Leaves taken exceed allowed leaves for the designation'}), 400
+
+    leaves.leave_taken = new_leaves_taken
+    db.session.commit()
+
+    return jsonify({'message': 'Leaves taken updated successfully'}), 200
+
+
+
+
+
+
+
+
 
 # @app.route('/login', methods=['POST'])
 # def login():

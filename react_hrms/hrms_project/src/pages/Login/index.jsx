@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [username, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState(null); 
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.auth.error);
   const isLoading = useSelector((state) => state.auth.loading);
@@ -17,22 +18,26 @@ const Login = () => {
   const handleSuccess = () => {
     console.log("success");
     navigate("/home");
-    
+  
   };
-
+  
+  const handleError = (error) => {
+    console.log("error success", error);
+    setErrorMsg(error.message);
+  };
 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (username && password) {
+    
       dispatch(loginUser({
         username: username,
         password:password,
         successCB: handleSuccess,
-        
-      }));
+        errorCB: handleError,
+      }))
     }
-  };
+  
 
   return (
     <> 
@@ -71,6 +76,16 @@ const Login = () => {
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
+          {errorMsg && (
+            <Typography
+              variant="body2"
+              color="error"
+              align="center"
+              sx={{ mt: 2 }}
+            >
+              {errorMsg}
+            </Typography>
+          )}
         </form>
       </Box>
     </Container>

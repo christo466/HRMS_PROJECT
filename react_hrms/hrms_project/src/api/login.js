@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const login = (username, password, successCB) => {
+export const login = (username, password, successCB,handleError ) => {
     const url = `${import.meta.env.VITE_API_BASE}/login`;
     console.log("login called with email:", username);
     return (
@@ -8,11 +8,11 @@ export const login = (username, password, successCB) => {
             (res) => {
                 console.log(res, "res");
                 successCB()
-                return res.data; // assuming the response contains the data directly
+                return res.data; 
             },
             (error) => {
                 console.log(error, "Error !!!");
-                throw error; // rethrow error for handling in calling function
+                handleError(error.response.data)
             }
         )
     );

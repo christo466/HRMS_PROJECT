@@ -1,63 +1,13 @@
-
-
-// import { useEffect } from "react";
-// import { useParams } from "react-router-dom";
-// import { useSelector, useDispatch } from "react-redux";
-// import { getHrmsData } from "../../store/hrms";
-// import Header from "../../components";
-// import { AppBar, Toolbar } from "@mui/material";
-
-
-// const EmployeeDetail = () => {
-//     const { id } = useParams(); 
-//     const dispatch = useDispatch(); 
-//     const employeeData = useSelector((state) => state.hrms.data.find(emp => emp.id === parseInt(id))); 
-//     const isLoading = useSelector((state) => state.hrms.status);
-  
-//     useEffect(() => {
-//       if (!employeeData) {
-//         dispatch(getHrmsData()); 
-//       }
-//     }, [dispatch, employeeData]); 
-  
-//     if (isLoading === "pending" || !employeeData) {
-//       return <div>Loading...</div>; 
-//     }
-  
-//     return (
-//       <>
-//         <AppBar position="static">
-//           <Toolbar>
-//             <Header /> 
-//           </Toolbar>
-//         </AppBar>
-//         <div className="employee-detail-container">
-//           <h1>{employeeData.first_name} {employeeData.last_name}</h1> 
-//           <p><strong>Address:</strong> {employeeData.address}</p> 
-//           <p><strong>Phone:</strong> {employeeData.phone}</p> 
-//           <p><strong>Email:</strong> {employeeData.email}</p> 
-//           <p><strong>Designation:</strong> {employeeData.designation_name}</p> 
-//           <p><strong>Total Leaves:</strong> {employeeData.total_leaves}</p> 
-//           <p><strong>Leaves Taken:</strong> {employeeData.leaves_taken}</p> 
-//         </div>
-//       </>
-//     );
-//   };
-  
-//   export default EmployeeDetail;
-  
-
-
-
-
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getHrmsData } from "../../store/hrms";
+import { updateEmployee, updateLeavesTaken } from "../../store/updateEmployee";
 import Header from "../../components";
-import { AppBar, Toolbar } from "@mui/material";
+import { AppBar, Toolbar, Button, Modal, Box, TextField } from "@mui/material";
 import VCF from 'vcf';
 import QRCode from 'qrcode.react';
+
 
 const EmployeeDetail = () => {
   const { id } = useParams();
@@ -72,6 +22,10 @@ const EmployeeDetail = () => {
   }, [dispatch, employeeData]);
 
   const [vcfData, setVcfData] = useState('');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [leavesModalOpen, setLeavesModalOpen] = useState(false);
+  const [editData, setEditData] = useState({});
+  const [leavesData, setLeavesData] = useState(employeeData?.leaves_taken || 0);
 
   const generateVcfAndUrl = () => {
     const employeeVcfData = generateVcfData(employeeData);
@@ -89,6 +43,7 @@ const EmployeeDetail = () => {
   };
 
   const downloadVcf = () => {
+    generateVcfAndUrl()
     if (vcfData) {
       const blob = new Blob([vcfData], { type: 'text/vcard' });
       const url = URL.createObjectURL(blob);
@@ -99,6 +54,66 @@ const EmployeeDetail = () => {
       a.click();
       document.body.removeChild(a);
     }
+  };
+
+  const handleEditOpen = () => {
+    setEditData(employeeData);
+    setEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditModalOpen(false);
+  };
+
+  const handleLeavesOpen = () => {
+    setLeavesData(employeeData?.leaves_taken || 0);
+    setLeavesModalOpen(true);
+  };
+
+  const handleLeavesClose = () => {
+    setLeavesModalOpen(false);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: value });
+  };
+
+  const handleLeavesChange = (e) => {
+    const { value } = e.target;
+    setLeavesData(value);
+  };
+  const handleSuccess = () => {
+    console.log("success");
+    handleRefresh()
+    
+    
+  };
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+  const handleSubmit = (e) => {
+    console.log(editData)
+    e.preventDefault();
+    dispatch(
+      updateEmployee ({
+        data: editData,
+        successCB: handleSuccess,
+        // errorCB: handleError,
+      })
+    );
+  };
+
+  const saveLeavesTaken = (e) => {
+    e.preventDefault();
+    dispatch(
+      updateLeavesTaken({
+        id:employeeData.id,
+        data:leavesData,
+        successCB: handleSuccess,
+      })
+    )
+    handleLeavesClose();
   };
 
   if (isLoading === "pending" || !employeeData) {
@@ -119,13 +134,105 @@ const EmployeeDetail = () => {
         <p><strong>Email:</strong> {employeeData.email}</p>
         <p><strong>Designation:</strong> {employeeData.designation_name}</p>
         <p><strong>Total Leaves:</strong> {employeeData.total_leaves}</p>
-        <p><strong>Leaves Taken:</strong> {employeeData.leaves_taken}</p>
+        <p><strong>Leaves Remaining:</strong> {(employeeData.total_leaves)-(employeeData.leaves_taken)}</p>
+        <p>
+          <strong>Leaves Taken:</strong> {employeeData.leaves_taken}
+          <Button variant="contained" onClick={handleLeavesOpen} style={{ marginLeft: '10px' }}>
+            Edit Leaves
+          </Button>
+        </p>
+        <Button variant="contained" onClick={handleEditOpen}>
+          Edit Details
+        </Button>
       </div>
       <EmployeeVcfDownload 
         generateVcfAndUrl={generateVcfAndUrl} 
         downloadVcf={downloadVcf} 
         vcfData={vcfData} 
       />
+      <Modal
+        open={editModalOpen}
+        onClose={handleEditClose}
+        aria-labelledby="edit-employee-modal"
+        aria-describedby="edit-employee-modal-description"
+      >
+        <Box sx={{ ...modalStyle }}>
+          <h2>Edit Employee Details</h2>
+          <TextField
+            name="first_name"
+            label="First Name"
+            value={editData.first_name || ''}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="last_name"
+            label="Last Name"
+            value={editData.last_name || ''}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="address"
+            label="Address"
+            value={editData.address || ''}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="phone"
+            label="Phone"
+            value={editData.phone || ''}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="email"
+            label="Email"
+            value={editData.email || ''}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="designation_name"
+            label="Designation"
+            value={editData.designation_name || ''}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <Button variant="contained" onClick={handleSubmit} style={{ marginTop: '20px' }}>
+            Save
+          </Button>
+        </Box>
+      </Modal>
+      <Modal
+        open={leavesModalOpen}
+        onClose={handleLeavesClose}
+        aria-labelledby="edit-leaves-modal"
+        aria-describedby="edit-leaves-modal-description"
+      >
+        <Box sx={{ ...modalStyle }}>
+          <h2>Edit Leaves Taken</h2>
+          <TextField
+            name="leaves_taken"
+            label="Leaves Taken"
+            type="number"
+            value={leavesData}
+            onChange={handleLeavesChange}
+            fullWidth
+            margin="normal"
+          />
+          <Button variant="contained" onClick={saveLeavesTaken} style={{ marginTop: '20px' }}>
+            Save
+          </Button>
+        </Box>
+      </Modal>
     </>
   );
 };
@@ -158,6 +265,18 @@ const EmployeeVcfDownload = ({ generateVcfAndUrl, downloadVcf, vcfData }) => {
       )}
     </>
   );
+};
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
 };
 
 export default EmployeeDetail;

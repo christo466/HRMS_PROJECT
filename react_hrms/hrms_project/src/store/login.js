@@ -22,10 +22,10 @@ export const loginFailure = (error) => ({
 });
 
 // Thunk for Login
-export const loginUser = ({username, password, successCB}) => async (dispatch) => {
+export const loginUser = ({username, password, successCB, errorCB}) => async (dispatch) => {
     dispatch(loginRequest());
     try {
-        const result = await login(username, password,successCB);
+        const result = await login(username, password,successCB, errorCB);
         dispatch(loginSuccess(result));
     } catch (error) {
         dispatch(loginFailure(error.message));
