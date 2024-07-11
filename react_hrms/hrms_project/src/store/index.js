@@ -6,7 +6,8 @@ import postReducer from "./postData"
 import logoutReducer from "./logout"
 import updateReducer from "./updateEmployee"
 import desigAddReducer from "./postDesignation"
-
+import deletedesigReducer from "./deleteDesig"
+import deleteEmployeeReducer from "./deleteEmployee"
 export const store = configureStore({
   reducer: {
     hrms: hrmsReducer,
@@ -15,7 +16,8 @@ export const store = configureStore({
     post:postReducer,
     logout:logoutReducer,
     update:updateReducer,
-    updesignation:desigAddReducer
-
+    updesignation:desigAddReducer,
+    deletedesig:deletedesigReducer,
+    deleteemployee:deleteEmployeeReducer 
   },
 });

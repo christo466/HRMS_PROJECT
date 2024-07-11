@@ -81,8 +81,30 @@ def add_designation():
     db.session.commit()
     return jsonify({'message': 'Designation added successfully'}), 201
     
-
-
+#to delete designation
+@app.route('/designation/delete/<int:id>', methods=['DELETE'])
+def delete_designation(id):  
+        designation = db.session.query(Designation).filter_by(id=id).first()
+        if not designation:
+            return jsonify({'error': 'Designation not found'}), 404
+        
+        db.session.delete(designation)
+        db.session.commit()
+        
+        return jsonify({'message': 'Designation deleted successfully'}), 200
+  
+#to delete employee
+@app.route('/employee/delete/<int:id>', methods=['DELETE'])
+def delete_employee(id):  
+        employee = db.session.query(Employee).filter_by(id=id).first()
+        if not employee:
+            return jsonify({'error': 'Employee not found'}), 404
+        
+        db.session.delete(employee)
+        db.session.commit()
+        
+        return jsonify({'message': 'Employee deleted successfully'}), 200
+    
 
 
 @app.route("/designations")
