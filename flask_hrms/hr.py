@@ -43,8 +43,12 @@ def login():
     
     user_id = session.get('user_id')
     username = session.get('username')
+    email = credential.email
+    phone = credential.phone
+    image_url = credential.image_url
+    designation = credential.designation
 
-    return jsonify({'message': 'Login successful', 'username': credential.username,'message': 'User is logged in', 'user_id': user_id, 'username': username}), 200
+    return jsonify({'message': 'Login successful', 'username': credential.username, 'user_id': user_id, 'username': username, 'image_url':image_url, 'email':email,'phone':phone,'designation':designation  }), 200
 
 
 @app.route('/logout', methods=['POST'])
@@ -154,11 +158,14 @@ def credentials():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    
+    designation= data.get('designation')
+    phone = data.get("phone")
+    email = data.get("email")
+    image_url = data.get("image_url")
     if not username or not password:
         return jsonify({"message": "Username and password are required"}), 400
 
-    credential = Credential(username=username,_password=password)
+    credential = Credential(username=username,_password=password, designation=designation, phone=phone, email=email, image_url=image_url)
      
     try:
         db.session.add(credential)
@@ -177,6 +184,7 @@ def credential(id):
         'id': credential.id,
         'username': credential.username,
         'password': credential._password,
+        
     })
 
 

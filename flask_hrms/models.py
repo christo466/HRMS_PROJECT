@@ -55,6 +55,13 @@ class Credential(Base):
     id    : Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(60), nullable=False)
     _password: Mapped[str] = mapped_column("password", String(255), nullable=False)
+    designation: Mapped[str] = mapped_column(String(50),nullable=False)
+    phone: Mapped[str]= mapped_column(String(30))
+    email: Mapped[str]= mapped_column(String(50))
+    image_url: Mapped[str] = mapped_column(String(255))
+    
+    
+    
     # def set_password(self, password):
     #     self._password = generate_password_hash(password)
 

@@ -15,10 +15,11 @@ const Login = () => {
   const isLoading = useSelector((state) => state.auth.loading);
   const navigate = useNavigate();
 
-  const handleSuccess = () => {
-    console.log("success");
+  const handleSuccess = (data) => {
+    console.log("data success", data);
+    localStorage.setItem('user', JSON.stringify(data));
     navigate("/home");
-  
+    // { state: { user: data } }
   };
   
   const handleError = (error) => {

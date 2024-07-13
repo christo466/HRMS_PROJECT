@@ -10,7 +10,7 @@ export const updateEmployeeDetails = (data, successCB) => {
       return res.data;
     },
     (error) => {
-    //   
+      
     console.log("error",error)
     }
   );

@@ -8,7 +8,7 @@ const initialState = {
 
 export const getHrmsData = createAsyncThunk("hrmsDatagetter", async () => {
   const response = await getData();
-  console.log(response, "response");
+  // console.log(response, "response");
   return response?.data;
 });
 

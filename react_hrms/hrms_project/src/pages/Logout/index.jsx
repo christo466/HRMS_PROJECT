@@ -9,6 +9,7 @@ const LogoutButton = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
+        localStorage.removeItem('user');
         dispatch(logoutUser()).then(() => {
             navigate('/'); 
         });

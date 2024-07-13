@@ -48,8 +48,8 @@ const initialState = {
 
 export const getDesignationData = createAsyncThunk("designation/getDesignationData", async () => {
   const response = await getDesigData();
-  console.log(response, "response");
-  return response.data; // Ensure this returns an array
+  // console.log(response, "response");
+  return response.data; 
 });
 
 const designationDataSlice = createSlice({

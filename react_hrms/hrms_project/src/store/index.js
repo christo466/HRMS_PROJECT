@@ -8,6 +8,7 @@ import updateReducer from "./updateEmployee"
 import desigAddReducer from "./postDesignation"
 import deletedesigReducer from "./deleteDesig"
 import deleteEmployeeReducer from "./deleteEmployee"
+import hrReducer from "./hr"
 export const store = configureStore({
   reducer: {
     hrms: hrmsReducer,
@@ -18,6 +19,7 @@ export const store = configureStore({
     update:updateReducer,
     updesignation:desigAddReducer,
     deletedesig:deletedesigReducer,
-    deleteemployee:deleteEmployeeReducer 
+    deleteemployee:deleteEmployeeReducer, 
+    hr:hrReducer
   },
 });

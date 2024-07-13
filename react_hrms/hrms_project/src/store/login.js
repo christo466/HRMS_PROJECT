@@ -1,4 +1,4 @@
-// Action Types
+
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
@@ -6,7 +6,7 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
 import { login } from "../api/login";
 
-// Action Creators
+
 export const loginRequest = () => ({
     type: LOGIN_REQUEST,
 });
@@ -21,7 +21,7 @@ export const loginFailure = (error) => ({
     payload: error,
 });
 
-// Thunk for Login
+
 export const loginUser = ({username, password, successCB, errorCB}) => async (dispatch) => {
     dispatch(loginRequest());
     try {
@@ -34,14 +34,14 @@ export const loginUser = ({username, password, successCB, errorCB}) => async (di
 
 
 
-// Initial State
+
 const initialState = {
     user: null,
     loading: false,
     error: null,
 };
 
-// Reducer
+
 const loginReducer = (state = initialState, action) => {
     switch (action.type) {
         case LOGIN_REQUEST:

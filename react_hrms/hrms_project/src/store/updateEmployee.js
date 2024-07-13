@@ -7,7 +7,7 @@ export const updateEmployee = createAsyncThunk(
   'hrms/updateEmployee',
   async ({data,successCB}) => {
     const response = await updateEmployeeDetails (data,successCB);
-  console.log(response.data, "response");
+//   console.log(response.data, "response");
   return response?.data;
   }
 );
@@ -17,7 +17,7 @@ export const updateLeavesTaken = createAsyncThunk(
   'hrms/updateLeavesTaken',
   async ({id,data,successCB}) => {
     const response = await updateEmployeeLeaves (id,data,successCB);
-  console.log(response.data, "response");
+//   console.log(response.data, "response");
   return response?.data;
   }
 );
