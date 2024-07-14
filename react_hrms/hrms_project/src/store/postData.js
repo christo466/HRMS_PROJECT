@@ -1,20 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { postEmployeeData  } from "../api/postEmployee";
+import { postEmployeeData } from "../api/postEmployee";
 
 const initialState = {
   status: "idle",
 
   data: [],
-  
 };
 
-export const postemployeeData = createAsyncThunk("employeeDatapost",
-   
-   async ({data,successCB,errorCB}) => {
-  const response = await postEmployeeData (data,successCB,errorCB);
-  console.log(response.data, "response");
-  return response?.data;
-});
+export const postemployeeData = createAsyncThunk(
+  "employeeDatapost",
+
+  async ({ data, successCB, errorCB }) => {
+    const response = await postEmployeeData(data, successCB, errorCB);
+    console.log(response.data, "response");
+    return response?.data;
+  }
+);
 
 const EmployeePostSlice = createSlice({
   name: "EmployeeData",
@@ -29,8 +30,6 @@ const EmployeePostSlice = createSlice({
       .addCase(postemployeeData.fulfilled, (state, action) => {
         state.status = "succeeded";
         console.log(action, "Action");
-        
-        
       })
       .addCase(postemployeeData.rejected, (state) => {
         state.status = "failed";

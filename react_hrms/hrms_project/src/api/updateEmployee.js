@@ -17,7 +17,7 @@ export const updateEmployeeDetails = (data, successCB) => {
 };
 
 // Function to update employee leaves
-export const updateEmployeeLeaves = (em_id, data, successCB) => {
+export const updateEmployeeLeaves = (em_id, data, successCB, errorCB) => {
     let id = parseInt(em_id);
   console.log("leaves:",data)
   const url = `${import.meta.env.VITE_API_BASE}/employees/${id}/leaves`;
@@ -27,7 +27,8 @@ export const updateEmployeeLeaves = (em_id, data, successCB) => {
       return res.data;
     },
     (error) => {
-      console.log("error", error)
+        
+      errorCB(error)
     }
   );
 };

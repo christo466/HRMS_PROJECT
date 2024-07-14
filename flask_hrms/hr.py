@@ -9,12 +9,11 @@ from marshmallow import ValidationError
 from flask_cors import CORS
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import joinedload 
+from datetime import datetime, timezone
 
 app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'christoaj466' 
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:christo466@localhost:5432/flaskdb"
-# engine = create_engine('postgresql://postgres:christo466@localhost:5432/flaskdb', echo=True) 
-# Session = sessionmaker(bind=engine)
 
 CORS(app)
 db.init_app(app)
@@ -34,7 +33,7 @@ def login():
    
     credential = db.session.query(Credential).filter_by(username=username).first()
 
-    if not credential or not credential._password == password:
+    if not credential or not credential.check_password(password):
         return jsonify({'message': 'Invalid username or password'}), 401
 
   
@@ -57,18 +56,6 @@ def logout():
     session.pop('username', None)
     return jsonify({'message': 'Logged out successfully'}), 200
 
-#to create designation
-# @app.route('/designation', methods=['POST'])
-# def designation():
-#     data = request.json
-#     console.log(data)
-#     new_designation = Designation(
-#         name=data['name'],
-#         leaves=data.get('leaves', None) 
-#     )
-#     db.session.add(new_designation)
-#     db.session.commit()
-#     return jsonify({'message': 'Designation created successfully', 'id': new_designation.id}), 201
 
 @app.route('/designation', methods=['POST'])
 def add_designation():
@@ -77,7 +64,7 @@ def add_designation():
     leaves = data['leaves']
     
     if not name or not leaves:
-        return jsonify({"message": "name and leaves are required"}), 400
+        return jsonify({"message": "Designation and leaves are required"}), 400
 
     new_designation = Designation(name=name, leaves=leaves)
 
@@ -96,21 +83,19 @@ def delete_designation(id):
         db.session.commit()
         
         return jsonify({'message': 'Designation deleted successfully'}), 200
-  
-#to delete employee
+
 @app.route('/employee/delete/<int:id>', methods=['DELETE'])
 def delete_employee(id):  
-        employee = db.session.query(Employee).filter_by(id=id).first()
-        if not employee:
-            return jsonify({'error': 'Employee not found'}), 404
-        
-        db.session.delete(employee)
-        db.session.commit()
-        
-        return jsonify({'message': 'Employee deleted successfully'}), 200
+    employee = db.session.query(Employee).filter_by(id=id).first()
+    if not employee:
+        return jsonify({'error': 'Employee not found'}), 404
     
+    employee.deleted_at = datetime.now(timezone.utc)
+    db.session.commit()
+    
+    return jsonify({'message': 'Employee deleted successfully'}), 200
 
-
+    
 @app.route("/designations")
 def designations():
     select_query = db.select(Designation).order_by(Designation.id)
@@ -125,21 +110,6 @@ def designations():
       detail.append(details)
     return flask.jsonify(detail)
 
-
-
-
-
-
-# #to get designation
-# @app.route('/designations/<int:id>', methods=['GET'])
-# def get_designation(id):
-#     designation = db.session.query(Designation).filter_by(id=id).first()
-#     return jsonify({
-#         'id': designation.id,
-#         'name': designation.name,
-#         'leaves': designation.leaves,
-#         # 'employees': [emp.name for emp in designation.employees] if designation.employees else []
-#     })
  #to update designation
 @app.route('/designation/<int:id>', methods=['PUT'])
 def update_designation(id):
@@ -165,8 +135,9 @@ def credentials():
     if not username or not password:
         return jsonify({"message": "Username and password are required"}), 400
 
-    credential = Credential(username=username,_password=password, designation=designation, phone=phone, email=email, image_url=image_url)
-     
+    credential = Credential(username=username, designation=designation, phone=phone, email=email, image_url=image_url)
+    credential.set_password(password)
+
     try:
         db.session.add(credential)
         db.session.commit()
@@ -206,23 +177,6 @@ def employee():
     return jsonify({'message': 'Employee created successfully', 'id': new_employee.id}), 201
 
 #to get employee
-# @app.route('/employees/<int:id>', methods=['GET'])
-# def get_employee(id):
-#     employee = db.session.query(Employee).filter_by(id=id).first()
-#     return jsonify({
-#         'id': employee.id,
-#         'firstname': employee.first_name,
-#         "lastname":employee.last_name,
-#         'Address': employee.Address,
-#         'phone': employee.phone,
-#         'email': employee.email,
-#         'designation_id': employee.designation_id,
-#         'created_at': employee.created_at,
-#         'updated_at': employee.updated_at,
-#         'deleted_at': employee.deleted_at
-#     })
-
-#to get employee
 @app.route("/employees", methods=['GET'])
 def employees():
     select_query = (
@@ -233,12 +187,13 @@ def employees():
             Employee.Address,
             Employee.phone,
             Employee.email,
+            Employee.designation_id,
             Designation.name.label('designation_name'),
             Designation.leaves.label('total_leaves'),
             Leave.leave_taken.label('leaves_taken')
         )
         .outerjoin(Designation, Employee.designation_id == Designation.id)
-        .outerjoin(Leave, Leave.employee_id == Employee.id)
+        .outerjoin(Leave, Leave.employee_id == Employee.id).filter(Employee.deleted_at.is_(None)) 
     )
     
     employees = db.session.execute(select_query).fetchall()
@@ -252,6 +207,7 @@ def employees():
             "address": employee.Address,
             "phone": employee.phone,
             "email": employee.email,
+            "designation_id":employee.designation_id,
             "designation_name": employee.designation_name,
             "total_leaves": employee.total_leaves,
             "leaves_taken": employee.leaves_taken,
@@ -270,6 +226,7 @@ def getemployee(id):
             Employee.Address,
             Employee.phone,
             Employee.email,
+            Employee.designation_id,
             Designation.name.label('designation_name'),
             Designation.leaves.label('total_leaves'),
             Leave.leave_taken.label('leaves_taken')
@@ -283,7 +240,7 @@ def getemployee(id):
     
     if employee is None:
         return jsonify({"error": "Employee not found"}), 404
-    
+    print(employee,"single employee data ")
     employee_data = {
         "id": employee.id,
         "first_name": employee.first_name,
@@ -292,6 +249,7 @@ def getemployee(id):
         "phone": employee.phone,
         "email": employee.email,
         "designation_name": employee.designation_name,
+        "designation_id":employee.designation_id,
         "total_leaves": employee.total_leaves,
         "leaves_taken": employee.leaves_taken,
     }
@@ -315,104 +273,26 @@ def update_employee(id):
     return jsonify({'message': 'Employee updated successfully'}), 200
 
 
-# @app.route('/employees/<int:id>/leaves', methods=['PUT'])
-# def update_employee_leaves(id):
-#     employee = db.session.query(Leave).filter_by(employee_id=id).first()
-#     print(employee,"employee")
-#     if not employee:
-#         return jsonify({'message': 'Employee not found'}), 404
-    
-#     data = request.json
-#     print(data.get('leave_taken'))
-#     employee.leave_taken = data.get('leave_taken', employee.leave_taken)
-#     print("leaves",employee.leave_taken)
-#     db.session.commit()
-#     return jsonify({'message': 'Leaves taken updated successfully'}), 200
 
 @app.route('/employees/<int:id>/leaves', methods=['PUT'])
 def update_employee_leaves(id):
     leaves = db.session.query(Leave).filter_by(employee_id=id).first()
     employee = db.session.query(Employee).options(joinedload(Employee.designation)).filter_by(id=id).first()
-
-    print(leaves,"leaves")
-    print(employee,"employees")
-    if not leaves:
+    if not employee:
         return jsonify({'message': 'Employee not found'}), 404
-    
     data = request.json
-    new_leaves_taken = int(data.get('leave_taken', leaves.leave_taken))
-    print(new_leaves_taken,"new_leaves")
-
-    # Fetch the designation to get the maximum allowed leaves
-  
+    new_leaves_taken = int(data.get('leave_taken', 0))
     designation = employee.designation
     max_allowed_leaves = designation.leaves
-    print(max_allowed_leaves,"max_leaves")
-
     if new_leaves_taken > max_allowed_leaves:
         return jsonify({'error': 'Leaves taken exceed allowed leaves for the designation'}), 400
-
-    leaves.leave_taken = new_leaves_taken
+    if not leaves:   
+        leaves = Leave(employee_id=id, leave_taken=new_leaves_taken)
+        db.session.add(leaves)
+    else:      
+        leaves.leave_taken = new_leaves_taken
     db.session.commit()
-
     return jsonify({'message': 'Leaves taken updated successfully'}), 200
-
-
-
-
-
-
-
-
-
-# @app.route('/login', methods=['POST'])
-# def login():
-#     data = request.get_json()
-#     if not data or not data.get('username') or not data.get('password'):
-#         return jsonify({'message': 'Missing username or password'}), 400
-
-#     username = data['username']
-#     password = data['password']
-
-#     # Create a session
-#     session = Session()
-
-#     try:
-#         credential = session.query(Credential).filter_by(username=username).first()
-#         if not credential or not credential.verify_password(password):
-#             return jsonify({'message': 'Invalid username or password'}), 401
-
-#         # Generate JWT token
-#         token = jwt.encode({'username': username, 'exp': datetime.utcnow() + timedelta(hours=1)}, app.config['SECRET_KEY'], algorithm='HS256')
-
-#         return jsonify({'token': token.decode('UTF-8')}), 200
-
-#     except Exception as e:
-#         return jsonify({'message': 'Internal server error'}), 500
-
-#     finally:
-#         session.close()
-
-
-#to get employees
-# @app.route("/employees")
-# def employees():
-#     select_query = db.select(Employee).order_by(Employee.id.desc())
-#     employees = db.session.execute(select_query).scalars()
-#     detail = []
-#     for employee in employees:
-#       details = {"id" : employee.id,
-#          "firstname" : employee.first_name,
-#          "last_name": employee.last_name,
-#          "Address":employee.Address ,
-#          "phone":employee.phone,
-#          "email":employee.email,
-#          "designation_id":employee.designation_id
-#          }
-#       detail.append(details)
-#     return flask.jsonify(detail)
-
-
 
 #to create leave
 @app.route('/leave', methods=['POST'])
@@ -426,9 +306,6 @@ def leave():
     db.session.add(new_leaves)
     db.session.commit()
     return jsonify({'message': 'leaves created successfully', 'id': new_leaves.id}), 201
-
-
-
 
 #to get leaves
 @app.route("/leaves")
@@ -444,10 +321,6 @@ def leaves():
          }
       detail.append(details)
     return flask.jsonify(detail)
-
-
-
-
 
 
 with app.app_context():

@@ -1,20 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { postDesignationData  } from "../api/postDesignation";
+import { postDesignationData } from "../api/postDesignation";
 
 const initialState = {
   status: "idle",
 
   data: [],
-  
 };
 
-export const postdesignationData = createAsyncThunk("DesignationDatapost",
-   
-   async ({data,successCB,errorCB}) => {
-  const response = await postDesignationData (data,successCB, errorCB);
-  console.log(response.data, "response");
-  return response?.data;
-});
+export const postdesignationData = createAsyncThunk(
+  "DesignationDatapost",
+
+  async ({ data, successCB, errorCB }) => {
+    const response = await postDesignationData(data, successCB, errorCB);
+    console.log(response.data, "response");
+    return response?.data;
+  }
+);
 
 const DesignationPostSlice = createSlice({
   name: "DesignationData",
@@ -29,8 +30,6 @@ const DesignationPostSlice = createSlice({
       .addCase(postdesignationData.fulfilled, (state, action) => {
         state.status = "succeeded";
         console.log(action, "Action");
-        
-        
       })
       .addCase(postdesignationData.rejected, (state) => {
         state.status = "failed";

@@ -19,7 +19,7 @@ const Login = () => {
     console.log("data success", data);
     localStorage.setItem('user', JSON.stringify(data));
     navigate("/home");
-    // { state: { user: data } }
+   
   };
   
   const handleError = (error) => {

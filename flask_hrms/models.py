@@ -8,7 +8,7 @@ from sqlalchemy import ForeignKey
 from datetime import datetime,timezone
 from sqlalchemy import  create_engine, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase,Mapped, sessionmaker, relationship
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash,check_password_hash
 class Base(DeclarativeBase):
   def __repr__(self):
     return f"{self.__class__.__name__}(id={self.id})"
@@ -62,8 +62,12 @@ class Credential(Base):
     
     
     
-    # def set_password(self, password):
-    #     self._password = generate_password_hash(password)
+    def set_password(self, password):
+        self._password = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self._password, password)
+
 
     
 def init_db(db_uri='postgresql://postgres:christo466@localhost:5432/flaskdb'):

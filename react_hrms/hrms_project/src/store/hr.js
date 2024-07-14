@@ -8,7 +8,6 @@ const initialState = {
 
 export const gethrData = createAsyncThunk("hrDatagetter", async () => {
   const response = await getHrData();
-//   console.log(response, "response");
   return response?.data;
 });
 

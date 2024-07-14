@@ -1,9 +1,9 @@
-
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { postemployeeData  } from "../../store/postData";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { postemployeeData } from "../../store/postData";
+import { getDesignationData } from "../../store/designation";
 import { useNavigate } from "react-router-dom";
-import { Container, Box, TextField, Button, Typography } from "@mui/material";
+import { Container, Box, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 const AddProductForm = () => {
   const [productData, setProductData] = useState({
@@ -11,12 +11,17 @@ const AddProductForm = () => {
     last_name: "",
     Address: "",
     phone: "",
-    email:"",
-    designation_id:""
+    email: "",
+    designation_id: ""
   });
   const [errorMsg, setErrorMsg] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const designations = useSelector((state) => state.designation.data);
+
+  useEffect(() => {
+    dispatch(getDesignationData());
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +46,7 @@ const AddProductForm = () => {
     console.log(productData)
     e.preventDefault();
     dispatch(
-        postemployeeData ({
+      postemployeeData({
         data: productData,
         successCB: handleSuccess,
         errorCB: handleError,
@@ -119,15 +124,22 @@ const AddProductForm = () => {
             margin="normal"
             variant="outlined"
           />
-          <TextField
-            fullWidth
-            label="Designation id"
-            name="designation_id"
-            value={productData.designation_id}
-            onChange={handleChange}
-            margin="normal"
-            variant="outlined"
-          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="designation-select-label">Designation</InputLabel>
+            <Select
+              labelId="designation-select-label"
+              name="designation_id"
+              value={productData.designation_id}
+              onChange={handleChange}
+              label="Designation"
+            >
+              {designations.map((designation) => (
+                <MenuItem key={designation.id} value={designation.id}>
+                  {designation.designation}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <Button
             type="submit"
             fullWidth
@@ -135,7 +147,7 @@ const AddProductForm = () => {
             color="primary"
             sx={{ mt: 2 }}
           >
-            Add Product
+            Add Employee
           </Button>
           {errorMsg && (
             <Typography
@@ -154,6 +166,3 @@ const AddProductForm = () => {
 };
 
 export default AddProductForm;
-
-
-
