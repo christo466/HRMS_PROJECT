@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { updateDesignationDetails } from "../api/updateDesignation";
 
-// Async action to update employee details
+
 export const updateDesignation = createAsyncThunk(
   "hrms/updateDesignation",
-  async ({ data, successCB }) => {
-    const response = await updateDesignationDetails(data, successCB);
+  async ({ data, successCB ,errorCB}) => {
+    const response = await updateDesignationDetails(data, successCB, errorCB);
     console.log(response.data, "response");
     return response?.data;
   }

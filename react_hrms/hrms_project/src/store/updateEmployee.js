@@ -6,8 +6,8 @@ import {
 
 export const updateEmployee = createAsyncThunk(
   "hrms/updateEmployee",
-  async ({ data, successCB }) => {
-    const response = await updateEmployeeDetails(data, successCB);
+  async ({ data, successCB, errorCB }) => {
+    const response = await updateEmployeeDetails(data, successCB, errorCB);
 
     return response?.data;
   }

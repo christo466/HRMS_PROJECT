@@ -1,22 +1,20 @@
-
 import axios from 'axios';
 
-// Function to update employee details
-export const updateEmployeeDetails = (data, successCB) => {
+export const updateEmployeeDetails = (data, successCB, errorCB) => {
   const url = `${import.meta.env.VITE_API_BASE}/employees/${data.id}`;
   return axios.put(url, data).then(
     (res) => {
       successCB();
+      console.log(res, "employee update data ")
       return res.data;
     },
     (error) => {
-      
-    console.log("error",error)
+        
+        errorCB(error.response.data.status_message)
     }
   );
 };
 
-// Function to update employee leaves
 export const updateEmployeeLeaves = (em_id, data, successCB, errorCB) => {
     let id = parseInt(em_id);
   console.log("leaves:",data)
@@ -27,7 +25,7 @@ export const updateEmployeeLeaves = (em_id, data, successCB, errorCB) => {
       return res.data;
     },
     (error) => {
-        
+      
       errorCB(error)
     }
   );

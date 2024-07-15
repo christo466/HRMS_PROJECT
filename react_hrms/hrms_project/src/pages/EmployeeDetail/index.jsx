@@ -73,7 +73,7 @@ const EmployeeDetail = () => {
   const [leavesData, setLeavesData] = useState(0);
   const [value, setValue] = useState(0);
   const [errorMsg, setErrorMsg] = useState(null);
-
+  const [errorMsgEmployee, setErrorMsgEmployee] = useState(null);
   const generateVcfAndUrl = () => {
     const employeeVcfData = generateVcfData(employeeData);
     setVcfData(employeeVcfData);
@@ -106,7 +106,9 @@ const EmployeeDetail = () => {
   const handleError = (error) => {
     setErrorMsg(error.response.data.error);
   };
-
+  const handleErrorEmployee = (error) => {
+    setErrorMsgEmployee(error);
+  };
   const handleEditOpen = () => {
     setEditData({
       ...employeeData,
@@ -153,6 +155,7 @@ const EmployeeDetail = () => {
       updateEmployee({
         data: editData,
         successCB: handleSuccess,
+        errorCB:handleErrorEmployee
       })
     );
   };
@@ -347,6 +350,11 @@ const EmployeeDetail = () => {
           >
             Save
           </Button>
+          {errorMsgEmployee && (
+            <Typography color="error" variant="body2">
+              {errorMsgEmployee}
+            </Typography>
+          )}
         </Box>
       </Modal>
       <Modal

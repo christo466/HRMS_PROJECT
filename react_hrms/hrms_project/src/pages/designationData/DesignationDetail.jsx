@@ -46,6 +46,7 @@ const DesignationDetail = () => {
     }));
   };
 
+
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditData((prevData) => ({
@@ -84,6 +85,7 @@ const DesignationDetail = () => {
       updateDesignation({
         data: editData,
         successCB: handleSuccess,
+        errorCB:handleError
       })
     );
   };

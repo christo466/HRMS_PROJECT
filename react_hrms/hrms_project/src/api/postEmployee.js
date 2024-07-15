@@ -7,12 +7,12 @@ export const postEmployeeData = (data,succesCB,handleError) => {
         axios.post(url,data).then(
             
             (res)=>{
-                
+                console.log(res.data,"employee add response")
                 succesCB()
                 return res.data;
             },
             (error)=>{
-               
+                console.log(error,"employee post error")
                 handleError(error.response.data)
                 
             }

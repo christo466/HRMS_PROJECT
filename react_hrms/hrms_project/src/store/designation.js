@@ -7,10 +7,13 @@ const initialState = {
   error: null,
 };
 
-export const getDesignationData = createAsyncThunk("designation/getDesignationData", async () => {
-  const response = await getDesigData();
-  return response.data; 
-});
+export const getDesignationData = createAsyncThunk(
+  "designation/getDesignationData",
+  async () => {
+    const response = await getDesigData();
+    return response.data; 
+  }
+);
 
 const designationDataSlice = createSlice({
   name: "designation",
@@ -37,5 +40,4 @@ const designationDataSlice = createSlice({
 });
 
 export default designationDataSlice.reducer;
-
 

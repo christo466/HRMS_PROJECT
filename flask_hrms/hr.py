@@ -11,6 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import joinedload 
 from datetime import datetime, timezone
 
+
 app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'christoaj466' 
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:christo466@localhost:5432/flaskdb"
@@ -57,21 +58,37 @@ def logout():
     return jsonify({'message': 'Logged out successfully'}), 200
 
 
+#to create designation
 @app.route('/designation', methods=['POST'])
 def add_designation():
     data = request.get_json()
-    name = data['name']
-    leaves = data['leaves']
+    name = data.get('name')
+    leaves = data.get('leaves')
     
     if not name or not leaves:
-        return jsonify({"message": "Designation and leaves are required"}), 400
+        return jsonify({
+            "status": False,
+            "status_message": "Designation and leaves are required",
+            "timestamp": datetime.utcnow().isoformat()
+        }), 400
 
     new_designation = Designation(name=name, leaves=leaves)
 
     db.session.add(new_designation)
     db.session.commit()
-    return jsonify({'message': 'Designation added successfully'}), 201
-    
+
+    response = {
+        "data": {
+            "name": name,
+            "leaves": leaves,
+        },
+        "status": True,
+        "status_message": "Designation added successfully",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    return jsonify(response), 201
+  
 #to delete designation
 @app.route('/designation/delete/<int:id>', methods=['DELETE'])
 def delete_designation(id):  
@@ -96,31 +113,62 @@ def delete_employee(id):
     return jsonify({'message': 'Employee deleted successfully'}), 200
 
     
+
+#to get designations
 @app.route("/designations")
 def designations():
     select_query = db.select(Designation).order_by(Designation.id)
     designations = db.session.execute(select_query).scalars()
+    
     detail = []
     for designation in designations:
-      details = {"id" : designation.id,
-         "designation" : designation.name,
-         "leaves": designation.leaves,
-        
-         }
-      detail.append(details)
-    return flask.jsonify(detail)
+        details = {
+            "id": designation.id,
+            "designation": designation.name,
+            "leaves": designation.leaves,
+        }
+        detail.append(details)
+
+    response = {
+        "data": detail,
+        "status": True,
+        "status_message": "designation details",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    return jsonify(response)
 
  #to update designation
 @app.route('/designation/<int:id>', methods=['PUT'])
 def update_designation(id):
     designation = db.session.query(Designation).filter_by(id=id).first()
     data = request.json
+    name = data.get('name')
+    leaves = data.get('leaves')
     designation.name = data.get('name', designation.name)
-    designation.leaves = data.get('leaves', designation.leaves)  # Adjust as per your model definition
+    designation.leaves = data.get('leaves', designation.leaves) 
+    if not data or not name or not leaves:
+        return jsonify(
+            {
+                "data": {},
+                "status": False,
+                "status_message": "Designation name and leaves are required",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        ), 400
     db.session.commit()
-    return jsonify({'message': 'Designation updated successfully'}), 200
+    response_data = {
+        "data": {
+            "id": designation.id,
+            "name": designation.name,
+            "leaves": designation.leaves,
+        },
+        "status": True,
+        "status_message": "Designation updated successfully",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
-
+    return jsonify(response_data), 200
 
 #to create credential
 @app.route('/credential', methods=['POST'])
@@ -158,23 +206,56 @@ def credential(id):
         
     })
 
-
-#to create employees
+#to create employee
 @app.route('/employee', methods=['POST'])
 def employee():
-    data = request.json
-    print(data)
-    new_employee = Employee(
-        first_name=data['first_name'],
-        last_name=data['last_name'],
-        Address=data['Address'],
-        phone=data['phone'],
-        email=data['email'],
-        designation_id=data['designation_id'],
-    )
-    db.session.add(new_employee)
-    db.session.commit()
-    return jsonify({'message': 'Employee created successfully', 'id': new_employee.id}), 201
+   
+        data = request.json
+        print(data)
+
+        required_fields = ["first_name", "last_name", "Address", "phone", "email", "designation_id"]
+    
+    
+        if not all(field in data and data[field] for field in required_fields):
+           return jsonify(
+            {
+                "data": {},
+                "status": False,
+                "status_message": "Missing required employee data",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        ), 400
+
+
+        new_employee = Employee(
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            Address=data['Address'],
+            phone=data['phone'],
+            email=data['email'],
+            designation_id=data['designation_id'],
+        )
+       
+        db.session.add(new_employee)
+        db.session.commit()
+
+        response_data = {
+            "data": {
+                "id": new_employee.id,
+                "first_name": new_employee.first_name,
+                "last_name": new_employee.last_name,
+                "address": new_employee.Address,
+                "phone": new_employee.phone,
+                "email": new_employee.email,
+                "designation_id": new_employee.designation_id,
+            },
+            "status": True,
+            "status_message": "Employee created successfully",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+        return jsonify(response_data), 201
+
 
 #to get employee
 @app.route("/employees", methods=['GET'])
@@ -193,11 +274,11 @@ def employees():
             Leave.leave_taken.label('leaves_taken')
         )
         .outerjoin(Designation, Employee.designation_id == Designation.id)
-        .outerjoin(Leave, Leave.employee_id == Employee.id).filter(Employee.deleted_at.is_(None)) 
+        .outerjoin(Leave, Leave.employee_id == Employee.id)
+        .filter(Employee.deleted_at.is_(None))
     )
     
     employees = db.session.execute(select_query).fetchall()
-    print(employees)
     employees_data = []
     for employee in employees:
         employee_data = {
@@ -207,14 +288,21 @@ def employees():
             "address": employee.Address,
             "phone": employee.phone,
             "email": employee.email,
-            "designation_id":employee.designation_id,
+            "designation_id": employee.designation_id,
             "designation_name": employee.designation_name,
             "total_leaves": employee.total_leaves,
             "leaves_taken": employee.leaves_taken,
         }
         employees_data.append(employee_data)
     
-    return jsonify(employees_data)
+    response = {
+        "data": employees_data,
+        "status": True,
+        "status_message": "Employees fetched successfully",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(response)
+
 
 @app.route("/employee/<int:id>", methods=['GET'])
 def getemployee(id):
@@ -268,12 +356,40 @@ def update_employee(id):
     employee.phone = data.get('phone', employee.phone)
     employee.email = data.get('email', employee.email)
     employee.designation_id = data.get('designation_id', employee.designation_id)
-    
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    Address = data.get('address')
+    phone = data.get('phone')
+    email = data.get('email')
+    designation_id = data.get('designation_id')
+    if not data or not first_name or not last_name or not Address or not phone or not email or not designation_id:
+        return jsonify(
+            {
+                "data": {},
+                "status": False,
+                "status_message": "required fields are missing",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        ), 400
     db.session.commit()
-    return jsonify({'message': 'Employee updated successfully'}), 200
+    response_data = {
+        "data": {
+            "id": employee.id,
+            "first_name": employee.first_name,
+            "last_name": employee.last_name,
+            "address": employee.Address,
+            "phone": employee.phone,
+            "email": employee.email,
+            "designation_id": employee.designation_id,
+        },
+        "status": True,
+        "status_message": "Employee updated successfully",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(response_data), 200
 
 
-
+#to update leaves
 @app.route('/employees/<int:id>/leaves', methods=['PUT'])
 def update_employee_leaves(id):
     leaves = db.session.query(Leave).filter_by(employee_id=id).first()

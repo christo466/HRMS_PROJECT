@@ -38,8 +38,7 @@ const AddProductForm = () => {
   };
 
   const handleError = (error) => {
-    console.log("error success", error);
-    setErrorMsg(error.error);
+    setErrorMsg(error.status_message);
   };
 
   const handleSubmit = (e) => {
