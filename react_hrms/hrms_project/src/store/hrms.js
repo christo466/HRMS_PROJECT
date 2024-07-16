@@ -18,12 +18,10 @@ const hrmsDataSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getHrmsData.pending, (state) => {
-        console.log("pending");
         state.status = "loading";
       })
       .addCase(getHrmsData.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action, "Action");
         state.data = action.payload;
       })
       .addCase(getHrmsData.rejected, (state) => {

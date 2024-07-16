@@ -116,7 +116,7 @@ const EmployeeDetail = () => {
     });
     setEditModalOpen(true);
   };
- console.log(employeeData,"employee data")
+ 
   const handleEditClose = () => {
     setEditModalOpen(false);
   };

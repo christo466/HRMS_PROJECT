@@ -12,7 +12,6 @@ export const postemployeeData = createAsyncThunk(
 
   async ({ data, successCB, errorCB }) => {
     const response = await postEmployeeData(data, successCB, errorCB);
-    console.log(response.data, "response");
     return response?.data;
   }
 );
@@ -24,7 +23,7 @@ const EmployeePostSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(postemployeeData.pending, (state) => {
-        console.log("pending");
+       
         state.status = "loading";
       })
       .addCase(postemployeeData.fulfilled, (state, action) => {

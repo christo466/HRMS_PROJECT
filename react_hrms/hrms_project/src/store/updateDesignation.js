@@ -6,7 +6,6 @@ export const updateDesignation = createAsyncThunk(
   "hrms/updateDesignation",
   async ({ data, successCB ,errorCB}) => {
     const response = await updateDesignationDetails(data, successCB, errorCB);
-    console.log(response.data, "response");
     return response?.data;
   }
 );

@@ -20,6 +20,11 @@ import {
   Paper,
   Button,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { useTheme } from '../../context/ThemeContext';
 
@@ -30,6 +35,8 @@ const Home = () => {
   const username = useSelector((state) => state.auth.data);
   const [user, setUser] = useState(null);
   const { theme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -39,10 +46,21 @@ const Home = () => {
     dispatch(getHrmsData());
   }, [dispatch, username]);
 
-  const handleDelete = (id) => {
-    dispatch(deleteEmployeeData(id)).then(() => {
+  const handleOpen = (id) => {
+    setSelectedEmployeeId(id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedEmployeeId(null);
+  };
+
+  const handleConfirmDelete = () => {
+    dispatch(deleteEmployeeData(selectedEmployeeId)).then(() => {
       dispatch(getHrmsData());
     });
+    handleClose();
   };
 
   useEffect(() => {
@@ -112,7 +130,7 @@ const Home = () => {
                       <TableCell>
                         <Button
                           variant="contained"
-                          onClick={() => handleDelete(data.id)}
+                          onClick={() => handleOpen(data.id)}
                           sx={{
                             backgroundColor: "#80d8ff",
                             color: "white",
@@ -133,13 +151,32 @@ const Home = () => {
         )}
       </Box>
       <Footer />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this employee?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            No
+          </Button>
+          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
 
 export default Home;
-
-
 
 
 

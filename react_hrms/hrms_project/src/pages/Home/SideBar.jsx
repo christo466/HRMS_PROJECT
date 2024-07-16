@@ -50,7 +50,7 @@ const TemporaryDrawer = () => {
     });
   };
 
-  console.log(user, "side bar data");
+  
   const DrawerList = (
     <Box
       sx={{
@@ -139,7 +139,7 @@ const TemporaryDrawer = () => {
         )}
 
         <List>
-          {["DESIGNATION", "ADD EMPLOYEE", "EMPLOYEE"].map((text) => (
+          {["DESIGNATION", "ADD EMPLOYEE", "EMPLOYEE CHART", "EMPLOYEE LEAVES CHART"].map((text) => (
             <ListItem key={text} disablePadding>
               <ListItemButton
                 component={Link}
@@ -148,8 +148,10 @@ const TemporaryDrawer = () => {
                     ? "/designations"
                     : text === "ADD EMPLOYEE"
                     ? "/post"
-                    : text === "EMPLOYEE"
+                    : text === "EMPLOYEE CHART"
                     ? "/employeechart"
+                    : text === "EMPLOYEE LEAVES CHART"
+                    ? "/barchart"
                     : "#"
                 }
                 sx={{

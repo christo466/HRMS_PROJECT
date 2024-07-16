@@ -10,10 +10,12 @@ import {
   Toolbar,
   Typography,
   Box,
+ 
   CircularProgress,
   TextField,
   Button,
   Modal,
+  
 } from "@mui/material";
 import { postdesignationData } from "../../store/postDesignation";
 import TemporaryDrawer from "../Home/SideBar";
@@ -27,11 +29,12 @@ const DesignationDetail = () => {
     name: "",
     leaves: "",
   });
+ 
   const [editData, setEditData] = useState({ id: null, name: "", leaves: "" });
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-
+ 
   useEffect(() => {
     if (designationData.length === 0) {
       dispatch(getDesignationData());
@@ -274,6 +277,7 @@ const DesignationDetail = () => {
           >
             <Typography variant="h6">
               Designation: {designation.designation}
+
             </Typography>
             <Typography variant="body1">
               Leaves: {designation.leaves}
@@ -308,3 +312,9 @@ const DesignationDetail = () => {
 };
 
 export default DesignationDetail;
+
+
+
+
+
+

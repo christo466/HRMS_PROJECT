@@ -12,7 +12,6 @@ export const postdesignationData = createAsyncThunk(
 
   async ({ data, successCB, errorCB }) => {
     const response = await postDesignationData(data, successCB, errorCB);
-    console.log(response.data, "response");
     return response?.data;
   }
 );

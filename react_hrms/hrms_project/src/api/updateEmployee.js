@@ -5,7 +5,7 @@ export const updateEmployeeDetails = (data, successCB, errorCB) => {
   return axios.put(url, data).then(
     (res) => {
       successCB();
-      console.log(res, "employee update data ")
+      
       return res.data;
     },
     (error) => {
@@ -17,7 +17,7 @@ export const updateEmployeeDetails = (data, successCB, errorCB) => {
 
 export const updateEmployeeLeaves = (em_id, data, successCB, errorCB) => {
     let id = parseInt(em_id);
-  console.log("leaves:",data)
+  
   const url = `${import.meta.env.VITE_API_BASE}/employees/${id}/leaves`;
   return axios.put(url, { leave_taken: data}, { headers: { 'Content-Type': 'application/json' } } ).then(
     (res) => {

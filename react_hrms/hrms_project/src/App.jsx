@@ -10,6 +10,7 @@ import About from './components/About';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import { useTheme } from './context/ThemeContext';
 import EmployeeChartPage from './pages/chart/EmployeeChart';
+import BarAnimation from './pages/barchart/Barchart';
 
 
 const App = () => {
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/employeechart" element={<EmployeeChartPage/>} />
+          <Route path="/barchart" element={<BarAnimation/>} />
         </Routes>
       </Router>
     </div>

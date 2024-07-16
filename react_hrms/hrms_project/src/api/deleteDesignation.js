@@ -6,12 +6,12 @@ export const deleteDesignationData = (id,successCB) => {
     return (
         axios.delete(url).then(
             (res) => {
-                console.log(res, "res");
+               
                 successCB()
                 return res;
             },
             (error) => {
-                console.log(error, "Error !!!");
+                console.log(error, "Errror of desig delete");
                 
             }
         )

@@ -22,13 +22,12 @@ const designationDataSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getDesignationData.pending, (state) => {
-        console.log("pending");
+        
         state.status = "loading";
         state.error = null;
       })
       .addCase(getDesignationData.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action, "Action");
         state.data = Array.isArray(action.payload) ? action.payload : [];
         state.error = null;
       })

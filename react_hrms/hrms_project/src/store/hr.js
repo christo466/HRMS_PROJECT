@@ -18,12 +18,10 @@ const hrDataSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(gethrData.pending, (state) => {
-        console.log("pending");
         state.status = "loading";
       })
       .addCase(gethrData.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.meta.arg, "Action hr");
         state.data = action.meta.arg;
       })
       .addCase(gethrData.rejected, (state) => {

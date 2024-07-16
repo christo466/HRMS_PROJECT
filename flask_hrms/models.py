@@ -9,6 +9,7 @@ from datetime import datetime,timezone
 from sqlalchemy import  create_engine, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase,Mapped, sessionmaker, relationship
 from werkzeug.security import generate_password_hash,check_password_hash
+from flask_migrate import Migrate
 class Base(DeclarativeBase):
   def __repr__(self):
     return f"{self.__class__.__name__}(id={self.id})"
@@ -46,7 +47,7 @@ class Leave(Base):
     __table_args__= (UniqueConstraint('employee_id'),)
     id    : Mapped[int] = mapped_column(primary_key=True)
     leave_taken: Mapped[int] = mapped_column()
-    employee_id: Mapped[int] = mapped_column(ForeignKey('employee.id'))
+    employee_id: Mapped[int] = mapped_column(ForeignKey('employee.id'),nullable=True)
     employees = relationship("Employee", back_populates="leaves")
     
 class Credential(Base):
