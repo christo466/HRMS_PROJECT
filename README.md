@@ -2,7 +2,7 @@ HRMS PROJECT
 
 1. Current credentials to login :
 
-username = CHRISTO
+username = CHRISTO,
 password = christo466
 
 2. To register new credential use postman:
