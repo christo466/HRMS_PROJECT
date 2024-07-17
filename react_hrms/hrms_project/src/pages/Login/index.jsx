@@ -35,7 +35,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSuccess = (data) => {
-    console.log('data success', data);
+    console.log('data success', data.username);
     localStorage.setItem('user', JSON.stringify(data));
     navigate('/home');
   };

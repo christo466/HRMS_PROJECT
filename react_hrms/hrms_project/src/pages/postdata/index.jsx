@@ -27,9 +27,15 @@ const AddProductForm = () => {
   const designations = useSelector((state) => state.designation.data);
 
   useEffect(() => {
-    dispatch(getDesignationData());
-  }, [dispatch]);
+    const user = localStorage.getItem('user');
+    if (!user) {
+      navigate("/");
+    } else {
+      dispatch(getDesignationData());
+    }
+  }, [dispatch, navigate]);
 
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProductData((prevData) => ({

@@ -1,5 +1,7 @@
 import Header from './index'; 
 import Footer from './Footer'; 
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -30,6 +32,13 @@ const StyledPaper = styled(Paper)`
 const PrivacyPolicy = () => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const navigate = useNavigate();
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   return (
     <>

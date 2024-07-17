@@ -47,7 +47,7 @@ const Home = () => {
     if (storedUser) {
       setUser(storedUser);
     } else {
-      navigate("/login");
+      navigate("/");
     }
     dispatch(getHrmsData());
   }, [dispatch, navigate, username]);

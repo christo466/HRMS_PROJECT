@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getDesignationData } from "../../store/designation";
 import { updateDesignation } from "../../store/updateDesignation";
 import { deleteDesignation } from "../../store/deleteDesig";
+import { useNavigate} from "react-router-dom";
 import Header from "../../components";
 import Footer from "../../components/Footer";
 import {
@@ -22,9 +23,11 @@ import TemporaryDrawer from "../Home/SideBar";
 
 const DesignationDetail = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const designationData = useSelector((state) => state.designation.data);
   const isLoading = useSelector((state) => state.designation.status);
   const error = useSelector((state) => state.designation.error);
+  const [ user, setUser] = useState(null);
   const [newDesignation, setNewDesignation] = useState({
     name: "",
     leaves: "",
@@ -36,10 +39,17 @@ const DesignationDetail = () => {
   const [errorMsg, setErrorMsg] = useState(null);
  
   useEffect(() => {
-    if (designationData.length === 0) {
-      dispatch(getDesignationData());
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    
+    if (!storedUser) {
+      navigate("/");
+    } else {
+      setUser(storedUser);
+      if (designationData.length === 0) {
+        dispatch(getDesignationData());
+      }
     }
-  }, [dispatch, designationData]);
+  }, [dispatch, navigate, designationData, setUser]);
 
   const handleAddDesignationChange = (e) => {
     const { name, value } = e.target;

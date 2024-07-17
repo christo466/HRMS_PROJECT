@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getHrmsData } from "../../store/hrms";
 import { updateEmployee, updateLeavesTaken } from "../../store/updateEmployee";
@@ -52,6 +52,7 @@ const tabData = [
 
 const EmployeeDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const employeeData = useSelector((state) =>
     state.hrms.data.find((emp) => emp.id === parseInt(id))
@@ -60,11 +61,16 @@ const EmployeeDetail = () => {
   const designations = useSelector((state) => state.designation.data);
 
   useEffect(() => {
-    if (!employeeData) {
-      dispatch(getHrmsData());
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/");
+    } else {
+      if (!employeeData) {
+        dispatch(getHrmsData());
+      }
+      dispatch(getDesignationData());
     }
-    dispatch(getDesignationData());
-  }, [dispatch, employeeData]);
+  }, [dispatch, employeeData, navigate]);
 
   const [vcfData, setVcfData] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
