@@ -4,7 +4,14 @@ import { postemployeeData } from "../../store/postData";
 import { getDesignationData } from "../../store/designation";
 import { useNavigate } from "react-router-dom";
 import { Container, Box, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-
+import Footer from "../../components/Footer";
+import Header from "../../components";
+import TemporaryDrawer from "../Home/SideBar";
+import {
+  AppBar,
+  Toolbar,
+ 
+} from "@mui/material";
 const AddProductForm = () => {
   const [productData, setProductData] = useState({
     first_name: "",
@@ -54,6 +61,13 @@ const AddProductForm = () => {
   };
 
   return (
+    <>
+    <AppBar position="static">
+        <Toolbar>
+        <TemporaryDrawer />
+          <Header />
+        </Toolbar>
+      </AppBar>
     <Container
       maxWidth="lg"
       sx={{
@@ -161,6 +175,8 @@ const AddProductForm = () => {
         </form>
       </Box>
     </Container>
+    <Footer/>
+    </>
   );
 };
 

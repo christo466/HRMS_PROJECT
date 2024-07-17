@@ -1,9 +1,11 @@
+
+import * as React from 'react';
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
 import { getHrmsData } from "../../store/hrms";
 import { deleteEmployeeData } from "../../store/deleteEmployee";
 import { gethrData } from "../../store/hr";
-import { Link } from "react-router-dom";
 import "./Home.css";
 import Header from "../../components";
 import Footer from "../../components/Footer";
@@ -11,12 +13,6 @@ import TemporaryDrawer from "./SideBar";
 import {
   AppBar,
   Toolbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Button,
   Box,
@@ -25,11 +21,19 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody
 } from "@mui/material";
 import { useTheme } from '../../context/ThemeContext';
+import { TableVirtuoso } from 'react-virtuoso';
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const employeeData = useSelector((state) => state.hrms.data);
   const isLoading = useSelector((state) => state.hrms.status);
   const username = useSelector((state) => state.auth.data);
@@ -42,9 +46,11 @@ const Home = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
+    } else {
+      navigate("/login");
     }
     dispatch(getHrmsData());
-  }, [dispatch, username]);
+  }, [dispatch, navigate, username]);
 
   const handleOpen = (id) => {
     setSelectedEmployeeId(id);
@@ -71,6 +77,129 @@ const Home = () => {
 
   const isDarkMode = theme === 'dark';
 
+  const rows = employeeData.map((data, index) => ({
+    slno: index + 1,
+    id: data.id,
+    first_name: data.first_name,
+    last_name: data.last_name,
+    phone: data.phone,
+    email: data.email,
+    designation_name: data.designation_name,
+    total_leaves: data.total_leaves,
+    handleOpen: handleOpen,
+  }));
+
+  const columns = [
+    
+    {
+      width: 150,
+      label: 'First Name',
+      dataKey: 'first_name',
+    },
+    {
+      width: 150,
+      label: 'Last Name',
+      dataKey: 'last_name',
+    },
+    {
+      width: 150,
+      label: 'Phone',
+      dataKey: 'phone',
+    },
+    {
+      width: 200,
+      label: 'Email',
+      dataKey: 'email',
+    },
+    {
+      width: 150,
+      label: 'Designation',
+      dataKey: 'designation_name',
+    },
+    {
+      width: 100,
+      label: 'Total Leaves',
+      dataKey: 'total_leaves',
+    },
+    {
+      width: 100,
+      label: 'Actions',
+      dataKey: 'actions',
+    },
+  ];
+  
+  const VirtuosoTableComponents = {
+    Scroller: React.forwardRef((props, ref) => (
+      <TableContainer component={Paper} {...props} ref={ref} />
+    )),
+    Table: (props) => (
+      <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
+    ),
+    TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
+    TableRow,
+    TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
+  };
+  
+  VirtuosoTableComponents.Scroller.displayName = 'VirtuosoScroller';
+  VirtuosoTableComponents.Table.displayName = 'VirtuosoTable';
+  VirtuosoTableComponents.TableHead.displayName = 'VirtuosoTableHead';
+  VirtuosoTableComponents.TableBody.displayName = 'VirtuosoTableBody';
+  
+  function fixedHeaderContent() {
+    return (
+      <TableRow>
+        {columns.map((column) => (
+          <TableCell
+            key={column.dataKey}
+            variant="head"
+            align={column.dataKey === 'slno' || column.dataKey === 'actions' ? 'center' : 'left'}
+            style={{ width: column.width }}
+            sx={{
+              backgroundColor: '#87CEFA',
+            }}
+          >
+            {column.label}
+          </TableCell>
+        ))}
+      </TableRow>
+    );
+  }
+  
+  function rowContent(_index, row) {
+    return (
+      <React.Fragment>
+        {columns.map((column) => (
+          <TableCell
+            key={column.dataKey}
+            align={column.dataKey === 'slno' || column.dataKey === 'actions' ? 'center' : 'left'}
+          >
+            {column.dataKey === 'actions' ? (
+              <Button
+                variant="contained"
+                onClick={() => row.handleOpen(row.id)}
+                sx={{
+                  backgroundColor: "#80d8ff",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "#87CEFA", 
+                  },
+                }}
+              >
+                Delete
+              </Button>
+            ) : column.dataKey === 'first_name' ? (
+              <Link to={`/employee/${row.id}`} style={{ color: 'blue' }}>
+                {row[column.dataKey]}
+              </Link>
+            ) : (
+              row[column.dataKey]
+            )}
+          </TableCell>
+        ))}
+      </React.Fragment>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -87,67 +216,18 @@ const Home = () => {
           <Header />
         </Toolbar>
       </AppBar>
-      <Box sx={{ flexGrow: 1, mt: 14 }}>
+      <Box sx={{ flexGrow: 1, mt: 20,ml:8,mr:8 }}>
         {isLoading === "pending" ? (
           <div>Loading...</div>
         ) : (
-          <>
-            <TableContainer component={Paper} className="table-container">
-              <Table aria-label="employee table">
-                <TableHead className="table-head">
-                  <TableRow>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>SL NO</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>First Name</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>Last Name</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>Phone</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>Email</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>Designation</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>Total Leaves</TableCell>
-                    <TableCell sx={{ color: isDarkMode ? 'white' : 'black' }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {employeeData.map((data, index) => (
-                    <TableRow
-                      key={data.id}
-                      className={`table-row ${isDarkMode ? 'dark-mode-row' : ''}`}
-                      sx={{
-                        backgroundColor: isDarkMode ? '#333' : 'inherit',
-                        color: isDarkMode ? '#ffffff' : 'inherit',
-                      }}
-                    >
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>
-                        <Link to={`/employee/${data.id}`} style={{ color: 'blue' }}>
-                          {data.first_name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{data.last_name}</TableCell>
-                      <TableCell>{data.phone}</TableCell>
-                      <TableCell>{data.email}</TableCell>
-                      <TableCell>{data.designation_name}</TableCell>
-                      <TableCell>{data.total_leaves}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="contained"
-                          onClick={() => handleOpen(data.id)}
-                          sx={{
-                            backgroundColor: "#80d8ff",
-                            color: "white",
-                            "&:hover": {
-                              backgroundColor: "#87CEFA", 
-                            },
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </>
+          <Paper style={{ height: 400, width: '100%' }}>
+            <TableVirtuoso
+              data={rows}
+              components={VirtuosoTableComponents}
+              fixedHeaderContent={fixedHeaderContent}
+              itemContent={rowContent}
+            />
+          </Paper>
         )}
       </Box>
       <Footer />
@@ -177,6 +257,3 @@ const Home = () => {
 };
 
 export default Home;
-
-
-

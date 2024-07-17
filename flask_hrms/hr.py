@@ -118,28 +118,42 @@ def add_designation():
 
     return jsonify(response), 201
   
+
 #to delete designation
 @app.route('/designation/delete/<int:id>', methods=['DELETE'])
 @cross_origin()
 def delete_designation(id):  
-        designation = db.session.query(Designation).filter_by(id=id).first()
-        if not designation:
-            return jsonify({
-                'data': {},
-                'status': False,
-                'status_message': 'Designation not found',
-                'timestamp': datetime.utcnow().isoformat()
-            }), 404
-        
-        db.session.delete(designation)
-        db.session.commit()
-        
+    designation = db.session.query(Designation).filter_by(id=id).first()
+    if not designation:
         return jsonify({
             'data': {},
-            'status': True,
-            'status_message': 'Designation deleted successfully',
+            'status': False,
+            'status_message': 'Designation not found',
             'timestamp': datetime.utcnow().isoformat()
-        }), 200
+        }), 404
+
+  
+    employees = db.session.query(Employee).filter_by(designation_id=id).all()
+
+   
+    for employee in employees:
+        leaves = db.session.query(Leave).filter_by(employee_id=employee.id).all()
+        for leave in leaves:
+            db.session.delete(leave)
+        db.session.delete(employee)
+
+   
+    db.session.delete(designation)
+    db.session.commit()
+
+    return jsonify({
+        'data': {},
+        'status': True,
+        'status_message': 'Designation and associated data deleted successfully',
+        'timestamp': datetime.utcnow().isoformat()
+    }), 200
+
+
 
 #to delete employee
 @app.route('/employee/delete/<int:id>', methods=['DELETE'])
