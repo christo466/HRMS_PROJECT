@@ -37,7 +37,7 @@ def login():
     credential = db.session.query(Credential).filter_by(username=username).first()
 
     if not credential :
-        return jsonify({'message': 'Invalid username '}), 401
+        return jsonify({'message': 'Invalid username'}), 401
     if not credential.check_password(password):
         return jsonify({'message': 'Invalid Password'}), 401
     session['user_id'] = credential.id
@@ -225,41 +225,67 @@ def update_designation(id):
 
     return jsonify(response_data), 200
 
-#to create credential
+#to create credential    
 @app.route('/credential', methods=['POST'])
 def credentials():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    designation= data.get('designation')
-    phone = data.get("phone")
-    email = data.get("email")
-    image_url = data.get("image_url")
-    if not username or not password:
-        return jsonify({"message": "Username and password are required"}), 400
+    designation = data.get('designation')
+    phone = data.get('phone')
+    email = data.get('email')
+    image_url = data.get('image_url')
 
-    credential = Credential(username=username, designation=designation, phone=phone, email=email, image_url=image_url)
+    if not username or not password:
+        return jsonify(
+            {
+                "data": {},
+                "status": False,
+                "status_message": "Username and password are required",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        ), 400
+
+    existing_user = db.session.query(Credential).filter_by(username=username).first()
+    if existing_user:
+        return jsonify(
+            {
+                "data": {},
+                "status": False,
+                "status_message": "Username already exists",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        ), 409
+
+    credential = Credential(
+        username=username,
+        designation=designation,
+        phone=phone,
+        email=email,
+        image_url=image_url
+    )
     credential.set_password(password)
 
-    try:
-        db.session.add(credential)
-        db.session.commit()
-        return jsonify({"message": "Credential added successfully"}), 201
-    except IntegrityError:
-        db.session.rollback()
-        return jsonify({"message": "Username already exists"}), 409
+    db.session.add(credential)
+    db.session.commit()
+    
+    response_data = {
+        "data": {
+            "id": credential.id,
+            "username": credential.username,
+            "designation": credential.designation,
+            "phone": credential.phone,
+            "email": credential.email,
+            "image_url": credential.image_url
+        },
+        "status": True,
+        "status_message": "Credential added successfully",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(response_data), 201
+
     
     
-#to get credential
-@app.route('/credential/<int:id>', methods=['GET'])
-def credential(id):
-    credential = db.session.query(Credential).filter_by(id=id).first()
-    return jsonify({
-        'id': credential.id,
-        'username': credential.username,
-        'password': credential._password,
-        
-    })
 
 #to create employee
 @app.route('/employee', methods=['POST'])
@@ -280,7 +306,13 @@ def employee():
                 "timestamp": datetime.utcnow().isoformat()
             }
         ), 400
-
+        existing_employee = db.session.query(Employee).filter_by(first_name=data['first_name']).first()
+        if existing_employee:
+         return jsonify({
+            "status": False,
+            "status_message": "Employee with this name already exists",
+            "timestamp": datetime.utcnow().isoformat()
+        }), 409
 
         new_employee = Employee(
             first_name=data['first_name'],
