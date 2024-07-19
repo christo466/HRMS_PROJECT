@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { getHrmsData } from "../../store/hrms";
 import { deleteEmployeeData } from "../../store/deleteEmployee";
-import { gethrData } from "../../store/hr";
 import "./Home.css";
 import Header from "../../components";
 import Footer from "../../components/Footer";
@@ -69,12 +68,7 @@ const Home = () => {
     handleClose();
   };
 
-  useEffect(() => {
-    if (user) {
-      dispatch(gethrData(user));
-    }
-  }, [user, dispatch]);
-
+  
   const isDarkMode = theme === 'dark';
 
   const rows = employeeData.map((data, index) => ({

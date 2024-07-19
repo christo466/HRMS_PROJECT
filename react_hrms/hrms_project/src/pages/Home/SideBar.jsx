@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import {  useState } from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
@@ -21,6 +20,8 @@ import { logoutUser } from "../../store/logout";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import GroupIcon from '@mui/icons-material/Group';
+import { gethrData } from "../../store/hr";
+gethrData
 const iconMap = {
   "HR PROFILE": <PersonIcon />,
   DESIGNATION: <WorkIcon />,
@@ -29,13 +30,15 @@ const iconMap = {
   "EMPLOYEE": <GroupIcon />,
 };
 
+
 const TemporaryDrawer = () => {
+ 
   const [open, setOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const user = useSelector((state) => state.hr);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const storedUser = JSON.parse(localStorage.getItem("user"));
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -72,7 +75,7 @@ const TemporaryDrawer = () => {
       <List>
         <Box sx={{ textAlign: "center", py: 2 }}>
           <img
-            src={user.data.image_url}
+            src={storedUser.image_url}
             alt="HR Profile"
             style={{
               width: "150px",
@@ -93,7 +96,8 @@ const TemporaryDrawer = () => {
               marginBottom: "60px",
             }}
           >
-            {user.data.username}
+          
+            {storedUser.username}
           </Typography>
         </Box>
 
@@ -121,19 +125,20 @@ const TemporaryDrawer = () => {
               variant="body1"
               sx={{ color: "black", textTransform: "capitalize" }}
             >
-              Name: {user.data.username}
+            
+              Name: {storedUser.username}
             </Typography>
             <Typography
               variant="body1"
               sx={{ color: "black", textTransform: "capitalize" }}
             >
-              Designation: {user.data.designation}
+              Designation: {storedUser.designation}
             </Typography>
             <Typography variant="body1" sx={{ color: "black" }}>
-              Phone: {user.data.phone}
+              Phone: {storedUser.phone}
             </Typography>
             <Typography variant="body1" sx={{ color: "black" }}>
-              Email: {user.data.email}
+              Email: {storedUser.email}
             </Typography>
           </Box>
         )}

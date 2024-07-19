@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getDesignationData } from "../../store/designation";
 import { updateDesignation } from "../../store/updateDesignation";
 import { deleteDesignation } from "../../store/deleteDesig";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components";
 import Footer from "../../components/Footer";
 import {
@@ -11,12 +11,10 @@ import {
   Toolbar,
   Typography,
   Box,
- 
   CircularProgress,
   TextField,
   Button,
   Modal,
-  
 } from "@mui/material";
 import { postdesignationData } from "../../store/postDesignation";
 import TemporaryDrawer from "../Home/SideBar";
@@ -27,29 +25,27 @@ const DesignationDetail = () => {
   const designationData = useSelector((state) => state.designation.data);
   const isLoading = useSelector((state) => state.designation.status);
   const error = useSelector((state) => state.designation.error);
-  const [ user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [newDesignation, setNewDesignation] = useState({
     name: "",
     leaves: "",
   });
- 
+
   const [editData, setEditData] = useState({ id: null, name: "", leaves: "" });
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
- 
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    
+
     if (!storedUser) {
       navigate("/");
     } else {
       setUser(storedUser);
-      if (designationData.length === 0) {
-        dispatch(getDesignationData());
-      }
+      dispatch(getDesignationData());
     }
-  }, [dispatch, navigate, designationData, setUser]);
+  }, [dispatch, navigate, setUser]);
 
   const handleAddDesignationChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +54,6 @@ const DesignationDetail = () => {
       [name]: value,
     }));
   };
-
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -76,10 +71,8 @@ const DesignationDetail = () => {
   };
 
   const handleError = (error) => {
-    console.log(error,"error while adding desig")
-    setErrorMsg(
-      error
-    );
+    console.log(error, "error while adding desig");
+    setErrorMsg(error);
   };
 
   const handleAddDesignation = () => {
@@ -98,7 +91,7 @@ const DesignationDetail = () => {
       updateDesignation({
         data: editData,
         successCB: handleSuccess,
-        errorCB:handleError
+        errorCB: handleError,
       })
     );
   };
@@ -144,14 +137,18 @@ const DesignationDetail = () => {
   }
 
   return (
-    <>
+    <Box
+      display="flex"
+      flexDirection="column"
+      minHeight="100vh"
+    >
       <AppBar position="static">
         <Toolbar>
-         <TemporaryDrawer />
+          <TemporaryDrawer />
           <Header />
         </Toolbar>
       </AppBar>
-      <Box mt={2} p={2}>
+      <Box flexGrow={1} mt={2} p={2}>
         <Button
           variant="contained"
           onClick={handleOpenModal}
@@ -277,7 +274,7 @@ const DesignationDetail = () => {
             borderRadius={4}
             sx={{
               width: "50%",
-              height:"190px",
+              height: "190px",
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
               "&:hover": {
                 transform: "scale(1.04)",
@@ -287,7 +284,6 @@ const DesignationDetail = () => {
           >
             <Typography variant="h6">
               Designation: {designation.designation}
-
             </Typography>
             <Typography variant="body1">
               Leaves: {designation.leaves}
@@ -306,7 +302,6 @@ const DesignationDetail = () => {
               </Button>
               <Button
                 variant="contained"
-                // color="secondary"
                 onClick={() => handleDeleteDesignation(designation.id)}
                 style={{ marginTop: "40px", backgroundColor: "#40c4ff" }}
               >
@@ -317,14 +312,9 @@ const DesignationDetail = () => {
         ))}
       </Box>
       <Footer />
-    </>
+    </Box>
   );
 };
 
 export default DesignationDetail;
-
-
-
-
-
 
