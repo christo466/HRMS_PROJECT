@@ -15,25 +15,23 @@ import TemporaryDrawer from '../Home/SideBar';
 export default function BasicArea() {
   const dispatch = useDispatch();
 
-  // Select HRMS data from the Redux store
   const hrmsData = useSelector((state) => state.hrms.data);
   const isLoading = useSelector((state) => state.hrms.isLoading);
   const error = useSelector((state) => state.hrms.error);
   const { theme } = useTheme();
   const isDarkMode = theme === 'dark';
   useEffect(() => {
-    // Dispatch the action to fetch HRMS data when the component mounts
+   
     dispatch(getHrmsData());
   }, [dispatch]);
 
 
-  // Ensure hrmsData is an array before mapping
   const xAxisData = Array.isArray(hrmsData) ? hrmsData.map((item) => item.first_name) : [];
   const seriesData = Array.isArray(hrmsData) ? hrmsData.map((item) => item.salary) : [];
 
  
 
-  // Conditional rendering based on loading state and data presence
+ 
   return (
     <>
     <Box
@@ -61,7 +59,7 @@ export default function BasicArea() {
           width: "100%",
         }}
       >
-    {/* <div> */}
+
       {isLoading && <p>Loading...</p>}
       {error && <p>Error loading data: {error}</p>}
       {!isLoading && !error && hrmsData.length > 0 && (
@@ -78,7 +76,7 @@ export default function BasicArea() {
           height={600}
         />
       )}
-    {/* </div> */}
+   
     </Box>
     </Box>
     <Footer/>
