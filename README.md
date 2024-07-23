@@ -38,6 +38,8 @@
  
 ## Unittest
 - Create a new database and setup in hr.py and model
+- Run this command for testing code :
+ ```python -m unittest test_hr.py```
 - Navigate to the flask_hrms folder from the HRMS_PROJECT folder and type these below commands in the terminal.
 - ```pip install coverage```.
 - ```coverage run -m unittest discover```.
