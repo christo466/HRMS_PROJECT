@@ -2,20 +2,25 @@
 
 ## Flask
 
+### To create credentials:
+- Navigate to flask_hrms and type:
+  ```python3 register.py```
+- It will automatically Create a new username and password
+
 ### Current credentials to log in:
 
 -    username = CHRISTO
--   password = christo466
+-   password = christo466@
 
-### To register new credentials use postman:
+### To register new credentials using Postman:
 
 -    Endpoint: http://127.0.0.1:5000/credential
 
-### JSON data model for registering credentials:
+### JSON data model for registering credentials using Postman:
 
 - {
       "username":"CHRISTO",
-      "password":"christo466"
+      "password":"christo466@"
     }
 
 ### local host:
