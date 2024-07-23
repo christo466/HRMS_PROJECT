@@ -11,6 +11,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import { useTheme } from './context/ThemeContext';
 import EmployeeChartPage from './pages/chart/EmployeeChart';
 import BarAnimation from './pages/barchart/Barchart';
+import EmployeeSalaryChart from './pages/Salary';
 
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/employeechart" element={<EmployeeChartPage/>} />
           <Route path="/barchart" element={<BarAnimation/>} />
+          <Route path="/salary" element={<EmployeeSalaryChart/>} />
         </Routes>
       </Router>
     </div>

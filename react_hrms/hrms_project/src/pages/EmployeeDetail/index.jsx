@@ -243,6 +243,9 @@ const EmployeeDetail = () => {
                 <strong>Email:</strong> {employeeData.email}
               </Typography>
               <Typography color="textSecondary">
+                <strong>Salary:</strong> {employeeData.salary}
+              </Typography>
+              <Typography color="textSecondary">
                 <strong>Designation:</strong> {employeeData.designation_name}
               </Typography>
               <Button
@@ -329,6 +332,15 @@ const EmployeeDetail = () => {
             name="email"
             label="Email"
             value={editData.email || ""}
+            onChange={handleEditChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="salary"
+            label="salary"
+            type="number"
+            value={editData.salary || ""}
             onChange={handleEditChange}
             fullWidth
             margin="normal"

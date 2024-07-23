@@ -40,7 +40,7 @@ const Home = () => {
   const { theme } = useTheme();
   const [open, setOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
-
+  console.log(employeeData,"employee data")
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
@@ -78,6 +78,7 @@ const Home = () => {
     last_name: data.last_name,
     phone: data.phone,
     email: data.email,
+    salary: data.salary,
     designation_name: data.designation_name,
     total_leaves: data.total_leaves,
     handleOpen: handleOpen,

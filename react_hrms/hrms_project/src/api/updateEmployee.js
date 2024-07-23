@@ -2,10 +2,11 @@ import axios from 'axios';
 
 export const updateEmployeeDetails = (data, successCB, errorCB) => {
   const url = `${import.meta.env.VITE_API_BASE}/employees/${data.id}`;
+
   return axios.put(url, data).then(
     (res) => {
       successCB();
-      
+     
       return res.data;
     },
     (error) => {

@@ -7,7 +7,7 @@ export const getData = () => {
     return axios.get(url, { timeout: 10000 }).then(
         (res) => {
             if (res.data.status) {
-                
+               
                 return res.data;
             } 
         },

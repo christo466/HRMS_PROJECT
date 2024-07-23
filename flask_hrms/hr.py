@@ -294,7 +294,7 @@ def employee():
         data = request.json
         print(data)
 
-        required_fields = ["first_name", "last_name", "Address", "phone", "email", "designation_id"]
+        required_fields = ["first_name", "last_name", "Address", "phone", "email", "designation_id","salary"]
     
     
         if not all(field in data and data[field] for field in required_fields):
@@ -315,11 +315,12 @@ def employee():
         }), 409
 
         new_employee = Employee(
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            Address=data['Address'],
-            phone=data['phone'],
-            email=data['email'],
+            first_name = data['first_name'],
+            last_name = data['last_name'],
+            Address = data['Address'],
+            phone = data['phone'],
+            email = data['email'],
+            salary = data['salary'],
             designation_id=data['designation_id'],
         )
        
@@ -334,6 +335,7 @@ def employee():
                 "address": new_employee.Address,
                 "phone": new_employee.phone,
                 "email": new_employee.email,
+                "salary": new_employee.salary,
                 "designation_id": new_employee.designation_id,
             },
             "status": True,
@@ -355,6 +357,7 @@ def employees():
             Employee.Address,
             Employee.phone,
             Employee.email,
+            Employee.salary,
             Employee.designation_id,
             Designation.name.label('designation_name'),
             Designation.leaves.label('total_leaves'),
@@ -375,6 +378,7 @@ def employees():
             "address": employee.Address,
             "phone": employee.phone,
             "email": employee.email,
+            "salary": employee.salary,
             "designation_id": employee.designation_id,
             "designation_name": employee.designation_name,
             "total_leaves": employee.total_leaves,
@@ -394,29 +398,54 @@ def employees():
 @app.route('/employees/<int:id>', methods=['PUT'])
 def update_employee(id):
     employee = db.session.query(Employee).filter_by(id=id).first()
+    
+    if not employee:
+        return jsonify({"status": False, "status_message": "Employee not found"}), 404
+    
     data = request.json
-    employee.first_name = data.get('first_name', employee.first_name)
-    employee.last_name = data.get('last_name',employee.last_name)
-    employee.Address = data.get('address', employee.Address)
-    employee.phone = data.get('phone', employee.phone)
-    employee.email = data.get('email', employee.email)
-    employee.designation_id = data.get('designation_id', employee.designation_id)
+    
     first_name = data.get('first_name')
     last_name = data.get('last_name')
-    Address = data.get('address')
+    address = data.get('address')
     phone = data.get('phone')
     email = data.get('email')
     designation_id = data.get('designation_id')
-    if not data or not first_name or not last_name or not Address or not phone or not email or not designation_id:
+    salary = data.get('salary')
+    
+    # Check for required fields
+    if not first_name or not last_name or not address or not phone or not email or not salary or not designation_id:
         return jsonify(
             {
                 "data": {},
                 "status": False,
-                "status_message": "required fields are missing",
+                "status_message": "Required fields are missing",
                 "timestamp": datetime.utcnow().isoformat()
             }
         ), 400
+    
+    # Update employee details
+    employee.first_name = first_name
+    employee.last_name = last_name
+    employee.Address = address
+    employee.phone = phone
+    employee.email = email
+    employee.designation_id = designation_id
+    
+    try:
+        new_salary = float(salary)
+        employee.salary = new_salary
+    except ValueError:
+        return jsonify(
+            {
+                "data": {},
+                "status": False,
+                "status_message": "Invalid salary value",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        ), 400
+    
     db.session.commit()
+    
     response_data = {
         "data": {
             "id": employee.id,
@@ -425,13 +454,18 @@ def update_employee(id):
             "address": employee.Address,
             "phone": employee.phone,
             "email": employee.email,
+            "salary": employee.salary,
             "designation_id": employee.designation_id,
         },
         "status": True,
         "status_message": "Employee updated successfully",
         "timestamp": datetime.utcnow().isoformat()
     }
+    
     return jsonify(response_data), 200
+
+
+
 
 
 #to update leaves

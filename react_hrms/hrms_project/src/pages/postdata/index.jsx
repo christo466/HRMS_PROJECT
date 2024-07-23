@@ -19,6 +19,7 @@ const AddProductForm = () => {
     Address: "",
     phone: "",
     email: "",
+    salary: "",
     designation_id: ""
   });
   const [errorMsg, setErrorMsg] = useState(null);
@@ -139,6 +140,15 @@ const AddProductForm = () => {
             label="email"
             name="email"
             value={productData.email}
+            onChange={handleChange}
+            margin="normal"
+            variant="outlined"
+          />
+           <TextField
+            fullWidth
+            label="salary"
+            name="salary"
+            value={productData.salary}
             onChange={handleChange}
             margin="normal"
             variant="outlined"

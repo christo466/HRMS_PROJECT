@@ -23,6 +23,7 @@ const hrmsDataSlice = createSlice({
       .addCase(getHrmsData.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.data = action.payload;
+      
       })
       .addCase(getHrmsData.rejected, (state) => {
         state.status = "failed";
