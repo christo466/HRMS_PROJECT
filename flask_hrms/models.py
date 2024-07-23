@@ -72,7 +72,7 @@ class Credential(Base):
 
 
     
-def init_db(db_uri='postgresql://postgres:christo466@localhost:5432/flaskunit'):
+def init_db(db_uri='postgresql://postgres:christo466@localhost:5432/flaskdb'):
     logger = logging.getLogger("FlaskApp")
     engine = create_engine(db_uri)
     Base.metadata.create_all(engine)

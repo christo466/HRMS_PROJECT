@@ -14,7 +14,7 @@ from sqlalchemy.orm import joinedload
 
 app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'christoaj466' 
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:christo466@localhost:5432/flaskunit"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:christo466@localhost:5432/flaskdb"
 
 CORS(app)
 db.init_app(app)
