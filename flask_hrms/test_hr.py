@@ -147,7 +147,7 @@ class DeleteDesignationTestCase(unittest.TestCase):
             designation_id = designation.id
 
             employee = Employee(first_name='John', last_name='Doe', Address='123 Main St',
-                                phone='1234567890', email='john.doe@example.com', designation_id=designation_id)
+                                phone='1234567890', email='john.doe@example.com',salary = 250000, designation_id=designation_id)
             employee_id = employee.id
             db.session.add(employee)
             db.session.commit()
@@ -280,6 +280,7 @@ class AddEmployeeTestCase(unittest.TestCase):
             'Address':'appadan house',
             'phone':'7356379662',
             'email':'christoaj466@gmail.com',
+            'salary':250000,
             'designation_id': designation_id  
         })
         self.assertEqual(response.status_code, 201)
@@ -290,6 +291,7 @@ class AddEmployeeTestCase(unittest.TestCase):
         self.assertEqual(data['data']['address'], 'appadan house')
         self.assertEqual(data['data']['phone'], '7356379662')
         self.assertEqual(data['data']['email'], 'christoaj466@gmail.com')
+        self.assertEqual(data['data']['salary'], 250000)
         self.assertEqual(data['data']['designation_id'], designation_id)  
         self.assertEqual(data['status_message'], 'Employee created successfully')
     def test_add_employee_missing_fields(self):
@@ -309,6 +311,7 @@ class AddEmployeeTestCase(unittest.TestCase):
             Address ='appadan house',
             phone = '7356379662',
             email = 'christoaj466@gmail.com',
+            salary = 250000,
             designation_id = designation_id  )
             db.session.add(employee)
             db.session.commit()
@@ -319,6 +322,7 @@ class AddEmployeeTestCase(unittest.TestCase):
             'Address':'appadan house',
             'phone':'7356379662',
             'email':'christoaj466@gmail.com',
+            'salary': 250000,
             'designation_id': designation_id  
         })
         self.assertEqual(response.status_code, 409)
@@ -351,6 +355,7 @@ class GetEnployeeTestCase(unittest.TestCase):
             Address ='appadan house',
             phone = '7356379662',
             email = 'christoaj466@gmail.com',
+            salary = 250000,
             designation_id = 1,
           
             )
@@ -375,7 +380,7 @@ class GetEnployeeTestCase(unittest.TestCase):
             
             'phone':'7356379662',
             'email':'christoaj466@gmail.com',
-                
+            'salary' : 250000,
             'total_leaves':20,
             'leaves_taken':None
             }
@@ -415,6 +420,7 @@ class DeleteEmployeeTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=self.test_designation.id,
                 deleted_at=None
             )
@@ -472,6 +478,7 @@ class UpdateEmployeeTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=test_designation.id,
                 deleted_at=None
             )
@@ -485,6 +492,7 @@ class UpdateEmployeeTestCase(unittest.TestCase):
                     'address': '456 Elm St',
                     'phone': '0987654321',
                     'email': 'janesmith@example.com',
+                    'salary': 250000,
                     'designation_id': test_designation.id
                 }
             )
@@ -510,6 +518,7 @@ class UpdateEmployeeTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=test_designation.id,
                 deleted_at=None
             )
@@ -523,6 +532,7 @@ class UpdateEmployeeTestCase(unittest.TestCase):
                     'address': '456 Elm St',
                     'phone': '0987654321',
                     'email': 'janesmith@example.com',
+                    'salary': 250000,
                     'designation_id': test_designation.id
                 }
             )
@@ -530,8 +540,52 @@ class UpdateEmployeeTestCase(unittest.TestCase):
             self.assertTrue(response.is_json)
             data = response.get_json()
             self.assertEqual(data['status'], False)
-            self.assertEqual(data['status_message'], 'required fields are missing')
+            self.assertEqual(data['status_message'], 'Required fields are missing')
+    def test_update_employee_invalid_salary(self):
+        # Test updating an employee with an invalid salary value
+        with self.app.app_context():
+            # Add a test designation and employee
+            test_designation = Designation(
+                name='Developer',
+                leaves=30
+            )
+            db.session.add(test_designation)
+            db.session.commit()
             
+            test_employee = Employee(
+                first_name='John',
+                last_name='Doe',
+                Address='123 Main St',
+                phone='1234567890',
+                email='johndoe@example.com',
+                designation_id=test_designation.id,
+                salary=50000.0,
+                deleted_at=None
+            )
+            db.session.add(test_employee)
+            db.session.commit()
+            
+            # Perform update with invalid salary
+            response = self.client.put(
+                f'/employees/{test_employee.id}',
+                json={
+                    'first_name': 'Jane',
+                    'last_name': 'Smith',
+                    'address': '456 Elm St',
+                    'phone': '0987654321',
+                    'email': 'janesmith@example.com',
+                    'designation_id': test_designation.id,
+                    'salary': 'not_a_number'  # Invalid salary
+                }
+            )
+            
+            # Assert response status and data
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue(response.is_json)
+            data = response.get_json()
+            self.assertEqual(data['status'], False)
+            self.assertEqual(data['status_message'], 'Invalid salary value')
+         
             
 class AddCredentialTestCase(unittest.TestCase):
     def setUp(self):
@@ -639,6 +693,7 @@ class UpdateEmployeeLeavesTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=designation.id
             )
             db.session.add(employee)
@@ -676,6 +731,7 @@ class UpdateEmployeeLeavesTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=designation.id
             )
             db.session.add(employee)
@@ -720,6 +776,7 @@ class UpdateEmployeeLeavesTestCase(unittest.TestCase):
             Address='456 Main St',
             phone='0987654321',
             email='janedoe@example.com',
+            salary = 250000,
             designation_id=designation.id
         )
             db.session.add(new_employee)
@@ -759,6 +816,7 @@ class LeaveTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=1
             )
             db.session.add(employee)
@@ -784,6 +842,7 @@ class LeaveTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe123@example.com',
+                salary = 250000,
                 designation_id=1
             )
             db.session.add(employee)
@@ -837,6 +896,7 @@ class LeaveListTestCase(unittest.TestCase):
                 Address='123 Main St',
                 phone='1234567890',
                 email='johndoe@example.com',
+                salary = 250000,
                 designation_id=1
             )
            
