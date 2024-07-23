@@ -87,22 +87,22 @@ const Home = () => {
   const columns = [
     
     {
-      width: 150,
+      width: 140,
       label: 'First Name',
       dataKey: 'first_name',
     },
     {
-      width: 150,
+      width: 140,
       label: 'Last Name',
       dataKey: 'last_name',
     },
     {
-      width: 150,
+      width: 140,
       label: 'Phone',
       dataKey: 'phone',
     },
     {
-      width: 200,
+      width: 180,
       label: 'Email',
       dataKey: 'email',
     },
@@ -110,6 +110,11 @@ const Home = () => {
       width: 150,
       label: 'Designation',
       dataKey: 'designation_name',
+    },
+    {
+      width: 150,
+      label: 'Salary',
+      dataKey: 'salary',
     },
     {
       width: 100,

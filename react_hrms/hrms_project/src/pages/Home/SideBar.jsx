@@ -144,13 +144,15 @@ const TemporaryDrawer = () => {
         )}
 
         <List>
-          {["DESIGNATION", "ADD EMPLOYEE", "EMPLOYEE CHART", "EMPLOYEE LEAVES CHART", "EMPLOYEE SALARY"].map((text) => (
+          {["DESIGNATION","EMPLOYEE LIST", "ADD EMPLOYEE", "EMPLOYEE CHART", "EMPLOYEE LEAVES CHART", "EMPLOYEE SALARY", ].map((text) => (
             <ListItem key={text} disablePadding>
               <ListItemButton
                 component={Link}
                 to={
                   text === "DESIGNATION"
                     ? "/designations"
+                    : text === "EMPLOYEE LIST"
+                    ? "/home"
                     : text === "ADD EMPLOYEE"
                     ? "/post"
                     : text === "EMPLOYEE CHART"
