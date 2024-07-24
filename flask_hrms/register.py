@@ -8,11 +8,11 @@ Base = declarative_base()
 # Define the Credential model
 class Credential(Base):
     __tablename__ = "credential"
-    # Corrected UniqueConstraint to use 'password'
+    # Ensure the combination of username and password is unique
     __table_args__ = (UniqueConstraint('username', 'password'),)
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(60), nullable=False)
+    username = Column(String(60), nullable=False, unique=True)  # Make username unique
     _password = Column("password", String(255), nullable=False)
     designation = Column(String(50), nullable=False)
     phone = Column(String(30))
@@ -55,24 +55,30 @@ try:
     # Create a new session
     session = Session()
 
-    # Create a new credential instance
-    new_credential = Credential(
-        username=username_input,
-        designation=designation_input,
-        phone=phone_input,
-        email=email_input,
-        image_url=image_url_input
-    )
+    # Check if the username already exists
+    existing_credential = session.query(Credential).filter_by(username=username_input).first()
 
-    # Set the password using the model's method
-    new_credential.set_password(password_input)
+    if existing_credential:
+        print("Credential with this username already exists.")
+    else:
+        # Create a new credential instance
+        new_credential = Credential(
+            username=username_input,
+            designation=designation_input,
+            phone=phone_input,
+            email=email_input,
+            image_url=image_url_input
+        )
 
-    # Add the new credential to the session
-    session.add(new_credential)
+        # Set the password using the model's method
+        new_credential.set_password(password_input)
 
-    # Commit the transaction
-    session.commit()
-    print("Data inserted successfully.")
+        # Add the new credential to the session
+        session.add(new_credential)
+
+        # Commit the transaction
+        session.commit()
+        print("Data inserted successfully.")
 
 except Exception as error:
     print(f"Error: {error}")
