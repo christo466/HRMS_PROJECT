@@ -3,7 +3,9 @@
 ## Flask
 
 ### To create credentials:
-- Navigate to flask_hrms and type:
+- Navigate to flask_hrms
+- First run ```flask --app hr run --debug```
+- Type this command :
   ```python3 register.py```
 - It will automatically Create a new username and password
 
