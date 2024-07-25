@@ -16,7 +16,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-
+db_uri='postgresql://postgres:christo466@localhost:5432/flaskdb'
 
 class Designation(Base):
     __tablename__ = "designation"
@@ -72,7 +72,7 @@ class Credential(Base):
 
 
     
-def init_db(db_uri='postgresql://postgres:christo466@localhost:5432/flaskdb'):
+def init_db(db_uri):
     logger = logging.getLogger("FlaskApp")
     engine = create_engine(db_uri)
     Base.metadata.create_all(engine)
